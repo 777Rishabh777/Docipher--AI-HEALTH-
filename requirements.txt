@@ -81,3 +81,35 @@ uritools==5.0.0
 urllib3==2.5.0
 webencodings==0.5.1
 xhtml2pdf==0.2.17
+# Web Framework (Pick ONE: usually Flask or Streamlit for AI apps)
+flask
+gunicorn
+# streamlit  <-- Only include this if you use Streamlit instead of Flask
+
+# AI & Machine Learning
+google-generativeai
+python-dotenv
+
+# Database (If you use MongoDB)
+pymongo
+certifi
+
+# Other common tools
+requests
+numpy
+pandas
+flask
+gunicorn
+google-generativeai
+python-dotenv
+requests
+corssheaders
+pymongo
+certifi
+pandas
+flask-cors
+flask
+flask-gunicorn
+flask-cors
+pymongo
+certifi
