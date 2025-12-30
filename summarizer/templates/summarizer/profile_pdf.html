@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Patient Profile PDF</title>
+    <style>
+        @page { size: a4 portrait; @frame header_frame {-pdf-frame-content: header_content; left: 40pt; right: 40pt; top: 40pt; height: 50pt;} @frame content_frame { left: 40pt; right: 40pt; top: 110pt; bottom: 40pt;} @frame footer_frame { -pdf-frame-content: footer_content; left: 40pt; right: 40pt; bottom: 20pt; height: 20pt;} }
+        body { font-family: "Helvetica", "Arial", sans-serif; font-size: 10pt; color: #333; }
+        h1 { font-size: 22pt; color: #0d6efd; text-align: right; margin: 0; }
+        h2 { font-size: 14pt; color: #0d6efd; border-bottom: 1.5px solid #0d6efd; padding-bottom: 4px; margin-top: 20px; margin-bottom: 12px; }
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #ccc; padding-bottom: 8px; }
+        .logo-placeholder { font-size: 18pt; font-weight: bold; color: #0d6efd; }
+        .section { margin-bottom: 15px; }
+        .grid-container { display: -pdf-flexbox; -pdf-flex-direction: row; width: 100%; }
+        .grid-col { width: 50%; padding-right: 15px; }
+        p { margin: 4px 0; line-height: 1.3; }
+        strong { display: inline-block; width: 160px; color: #555; vertical-align: top; }
+        .full-width p { background-color: #f8f9fa; padding: 8px; border-left: 2px solid #0d6efd; margin-top: 5px; }
+        #footer_content { text-align: right; font-size: 8pt; color: #777; }
+    </style>
+</head>
+<body>
+    <div id="header_content"><div class="header"><div class="logo-placeholder">🩺 Docipher</div><h1>Patient Profile</h1></div></div>
+    <div id="footer_content">Generated on {% now "F d, Y" %} | Page <pdf:pagenumber></div>
+
+    <h2>Personal Information</h2>
+    <div class="section grid-container">
+        <div class="grid-col">
+            <p><strong>Full Name:</strong> {{ user.first_name }} {{ user.last_name }}</p>
+            <p><strong>Date of Birth:</strong> {{ profile.date_of_birth|default:"Not set" }}</p>
+            <p><strong>Gender:</strong> {{ profile.gender|default:"Not set" }}</p>
+            <p><strong>Marital Status:</strong> {{ profile.marital_status|default:"Not set" }}</p>
+            <p><strong>Occupation:</strong> {{ profile.occupation|default:"Not set" }}</p>
+        </div>
+        <div class="grid-col">
+            <p><strong>Username:</strong> {{ user.username }}</p>
+            <p><strong>Email:</strong> {{ user.email }}</p>
+            <p><strong>Contact Number:</strong> {{ profile.contact_number|default:"Not set" }}</p>
+            <p><strong>Address:</strong> {{ profile.address|default:"Not set" }}</p>
+        </div>
+    </div>
+
+    <h2>Medical Vitals & Basic Info</h2>
+    <div class="section grid-container">
+         <div class="grid-col">
+            <p><strong>Blood Group:</strong> {{ profile.blood_group|default:"Not set" }}</p>
+            <p><strong>Height (cm):</strong> {{ profile.height|default:"Not set" }}</p>
+            <p><strong>Weight (kg):</strong> {{ profile.weight|default:"Not set" }}</p>
+        </div>
+        <div class="grid-col">
+            <p><strong>Primary Doctor:</strong> {{ profile.primary_care_physician|default:"Not set" }}</p>
+            <p><strong>Doctor's Contact:</strong> {{ profile.physician_contact|default:"Not set" }}</p>
+        </div>
+    </div>
+
+    <h2>Medical History & Conditions</h2>
+    <div class="section full-width"><p><strong>Chronic Conditions:</strong></p><p>{{ profile.chronic_conditions|default:"None listed." }}</p></div>
+    <div class="section full-width"><p><strong>Known Allergies:</strong></p><p>{{ profile.allergies|default:"None listed." }}</p></div>
+    <div class="section full-width"><p><strong>Past Surgeries:</strong></p><p>{{ profile.past_surgeries|default:"None listed." }}</p></div>
+    <div class="section full-width"><p><strong>Past Major Illnesses:</strong></p><p>{{ profile.past_major_illnesses|default:"None listed." }}</p></div>
+    <div class="section full-width"><p><strong>Current Medications:</strong></p><p>{{ profile.current_medications|default:"None listed." }}</p></div>
+    <div class="section full-width"><p><strong>Family Medical History:</strong></p><p>{{ profile.family_medical_history|default:"None listed." }}</p></div>
+    <div class="section full-width"><p><strong>Immunization History:</strong></p><p>{{ profile.immunization_history|default:"None listed." }}</p></div>
+
+    <h2>Lifestyle</h2>
+    <div class="section grid-container">
+        <div class="grid-col">
+            <p><strong>Smoking Status:</strong> {{ profile.smoking_status|default:"Not set" }}</p>
+        </div>
+        <div class="grid-col">
+             <p><strong>Alcohol Consumption:</strong> {{ profile.alcohol_consumption|default:"Not set" }}</p>
+        </div>
+    </div>
+    <div class="section full-width"><p><strong>Dietary Notes:</strong></p><p>{{ profile.dietary_notes|default:"None listed." }}</p></div>
+
+    <h2>Emergency Contact</h2>
+    <div class="section grid-container">
+        <div class="grid-col"><p><strong>Name:</strong> {{ profile.emergency_contact_name|default:"Not set" }}</p></div>
+        <div class="grid-col"><p><strong>Phone:</strong> {{ profile.emergency_contact_phone|default:"Not set" }}</p></div>
+    </div>
+</body>
+</html>

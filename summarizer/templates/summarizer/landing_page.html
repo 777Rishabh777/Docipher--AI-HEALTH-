@@ -1,0 +1,326 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+<style>
+    .hero-section {
+        min-height: 100vh;
+        background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('https://images.unsplash.com/photo-1576091160550-2173dba999ef?q=80&w=2070&auto=format&fit=crop');
+        background-size: cover;
+        background-position: center;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-top: -70px;
+        padding-top: 0;
+        position: relative;
+        overflow: hidden;
+    }
+    .hero-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="40" r="1.5" fill="rgba(255,255,255,0.1)"/><circle cx="60" cy="80" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="40" cy="60" r="1.5" fill="rgba(255,255,255,0.1)"/><circle cx="90" cy="20" r="1" fill="rgba(255,255,255,0.1)"/></svg>');
+        animation: twinkle 4s ease-in-out infinite;
+    }
+    @keyframes twinkle {
+        0%, 100% { opacity: 0.3; }
+        50% { opacity: 0.8; }
+    }
+    .hero-stickers {
+        position: absolute;
+        top: 20%;
+        left: 10%;
+        font-size: 3rem;
+        opacity: 0.2;
+    }
+    .hero-stickers.right {
+        top: 30%;
+        right: 10%;
+    }
+    .hero-stickers.bottom {
+        bottom: 20%;
+        left: 20%;
+    }
+    .hero-content {
+        max-width: 700px;
+        margin: 0 auto;
+        background: rgba(0,0,0,0.25);
+        backdrop-filter: blur(10px);
+        border-radius: 24px;
+        padding: 3rem 2rem;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+        border: 1px solid rgba(255,255,255,0.1);
+        position: relative;
+        z-index: 2;
+    }
+    
+   
+    .feature-icon {
+        font-size: 2.5rem;
+        color: var(--bs-primary);
+    }
+    .card {
+        border: none;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border-radius: 18px;
+    }
+    .card:hover {
+        transform: translateY(-8px) scale(1.03);
+        box-shadow: 0 1rem 3rem rgba(0,0,0,.15)!important;
+    }
+    .testimonial-card img {
+        width: 60px;
+        height: 60px;
+        object-fit: cover;
+    }
+    .news-card img {
+        height: 180px;
+        object-fit: cover;
+        border-top-left-radius: 18px;
+        border-top-right-radius: 18px;
+    }
+    .main-content-row {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 2rem;
+    }
+    .main-content-col {
+        flex: 1 1 0;
+        min-width: 0;
+    }
+    .sidebar-ads {
+        flex: 0 0 320px;
+        max-width: 320px;
+        min-width: 260px;
+        background: #f8f9fa;
+        border-radius: 18px;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+        padding: 2rem 1rem;
+        margin-top: 2rem;
+        display: block;
+    }
+    @media (max-width: 991px) {
+        .main-content-row {
+            flex-direction: column;
+            gap: 0;
+        }
+        .sidebar-ads {
+            display: none;
+        }
+    }
+</style>
+
+
+<section class="hero-section text-center">
+ 
+        <div class="hero-content" data-aos="fade-up">
+                <h1 class="display-2 fw-bold mb-4" style="letter-spacing: 1px;">Decode Your Health with <span style="color: #0d6efd;">AI</span></h1>
+                <p class="lead mb-5 mx-auto" style="max-width: 650px; font-size: 1.35rem;">Docipher translates complex medical reports into simple summaries, helping you understand and take control of your health journey.</p>
+                <div class="d-flex flex-column flex-sm-row justify-content-center gap-3">
+                        <a href="{% url 'register' %}" class="btn btn-primary btn-lg px-5 shadow">Get Started</a>
+                        <a href="#features" class="btn btn-outline-light btn-lg px-5 shadow">Learn More</a>
+                </div>
+        </div>
+</section>
+
+<div class="main-content-row">
+    <div class="main-content-col">
+        <section id="features" class="container my-5 py-5">
+            <div class="text-center mb-5" data-aos="fade-up">
+                <h2 class="fw-bold">Your Personal Health Intelligence Platform</h2>
+                <p class="text-muted">All the tools you need, in one secure place.</p>
+            </div>
+            <div class="row text-center">
+                <div class="col-lg-4 mb-4" data-aos="fade-up" data-aos-delay="100">
+                    <div class="card h-100 p-4 shadow-sm">
+                        <i class="bi bi-file-text feature-icon mb-3"></i>
+                        <h3>AI Report Summarizer</h3>
+                        <p class="mb-3">Upload dense medical reports and get instant, clear summaries. Understand your diagnosis and treatment plan without the confusing jargon.</p>
+                        <ul class="list-unstyled text-start small text-muted">
+                            <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Simple language explanations</li>
+                            <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Key findings highlighted</li>
+                            <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Medical term definitions</li>
+                            <li><i class="bi bi-check-circle-fill text-success me-2"></i>Save & access history</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-lg-4 mb-4" data-aos="fade-up" data-aos-delay="200">
+                    <div class="card h-100 p-4 shadow-sm">
+                        <i class="bi bi-robot feature-icon mb-3"></i>
+                        <h3>AI Medical Assistant</h3>
+                        <p class="mb-3">Have general health questions? Our conversational AI provides safe, educational answers based on trusted medical knowledge.</p>
+                        <ul class="list-unstyled text-start small text-muted">
+                            <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>24/7 instant responses</li>
+                            <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Medication reminders</li>
+                            <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Health tips & lifestyle advice</li>
+                            <li><i class="bi bi-check-circle-fill text-success me-2"></i>Emergency resource links</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-lg-4 mb-4" data-aos="fade-up" data-aos-delay="300">
+                    <div class="card h-100 p-4 shadow-sm">
+                        <i class="bi bi-person-badge feature-icon mb-3"></i>
+                        <h3>Comprehensive Profile</h3>
+                        <p class="mb-3">Keep all your vital health information in one place—from allergies to emergency contacts. Download your profile as a PDF anytime.</p>
+                        <ul class="list-unstyled text-start small text-muted">
+                            <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Medical history tracking</li>
+                            <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Medication management</li>
+                            <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Emergency contacts</li>
+                            <li><i class="bi bi-check-circle-fill text-success me-2"></i>PDF export feature</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="row text-center mt-4">
+                <div class="col-lg-4 mb-4" data-aos="fade-up" data-aos-delay="400">
+                    <div class="card h-100 p-4 shadow-sm">
+                        <i class="bi bi-bell feature-icon mb-3"></i>
+                        <h3>Smart Reminders</h3>
+                        <p class="mb-3">Never miss important medications or appointments with our intelligent reminder system.</p>
+                        <ul class="list-unstyled text-start small text-muted">
+                            <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Custom schedules</li>
+                            <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Push notifications</li>
+                            <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Repeat reminders</li>
+                            <li><i class="bi bi-check-circle-fill text-success me-2"></i>Calendar integration</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-lg-4 mb-4" data-aos="fade-up" data-aos-delay="500">
+                    <div class="card h-100 p-4 shadow-sm">
+                        <i class="bi bi-shield-check feature-icon mb-3"></i>
+                        <h3>Privacy & Security</h3>
+                        <p class="mb-3">Your health data is protected with industry-standard security measures and encryption.</p>
+                        <ul class="list-unstyled text-start small text-muted">
+                            <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>End-to-end encryption</li>
+                            <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Secure data storage</li>
+                            <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>HIPAA compliance</li>
+                            <li><i class="bi bi-check-circle-fill text-success me-2"></i>Access controls</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-lg-4 mb-4" data-aos="fade-up" data-aos-delay="600">
+                    <div class="card h-100 p-4 shadow-sm">
+                        <i class="bi bi-graph-up feature-icon mb-3"></i>
+                        <h3>Health Analytics</h3>
+                        <p class="mb-3">Track your health journey with visual insights and progress monitoring.</p>
+                        <ul class="list-unstyled text-start small text-muted">
+                            <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Progress tracking</li>
+                            <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Visual reports</li>
+                            <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Trend analysis</li>
+                            <li><i class="bi bi-check-circle-fill text-success me-2"></i>Health goals</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+    </div>
+    <aside class="sidebar-ads d-none d-lg-block">
+        <h5 class="fw-bold mb-3">Sponsored</h5>
+        <div class="mb-4">
+            <a href="https://www.1mg.com/" target="_blank">
+                <img src="https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?w=400" alt="Ad" class="img-fluid rounded mb-2">
+            </a>
+            <p class="small text-muted">Order medicines online at 1mg.com and get home delivery.</p>
+        </div>
+        <div class="mb-4">
+            <a href="https://www.apollopharmacy.in/" target="_blank">
+                <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=400" alt="Ad" class="img-fluid rounded mb-2">
+            </a>
+            <p class="small text-muted">Apollo Pharmacy: Trusted for your health essentials.</p>
+        </div>
+        <div class="mb-4">
+            <a href="https://www.practo.com/" target="_blank">
+                <img src="https://images.unsplash.com/photo-1465101046530-73398c7f28ca?w=400" alt="Ad" class="img-fluid rounded mb-2">
+            </a>
+            <p class="small text-muted">Book doctor appointments instantly on Practo.</p>
+        </div>
+    </aside>
+</div>
+
+<section class="bg-light py-5">
+    <div class="container" data-aos="fade-up">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold">Trusted by Patients Like You</h2>
+        </div>
+        <div class="row">
+            <div class="col-lg-4 mb-4" data-aos="fade-up" data-aos-delay="100">
+                <div class="card testimonial-card p-4 h-100">
+                    <p class="fst-italic">"For the first time, I actually understood my father's discharge summary. Docipher is a game-changer for our family."</p>
+                    <div class="d-flex align-items-center mt-3">
+                        <img src="https://images.unsplash.com/photo-1557862921-37829c790f19?w=50" class="rounded-circle me-3" alt="User">
+                        <div><h5 class="mb-0">A. Kumar</h5><small class="text-muted">Lucknow</small></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 mb-4" data-aos="fade-up" data-aos-delay="200">
+                 <div class="card testimonial-card p-4 h-100">
+                    <p class="fst-italic">"The AI Assistant helped me understand my symptoms better before I even spoke to my doctor. It's incredibly helpful and reassuring."</p>
+                    <div class="d-flex align-items-center mt-3">
+                        <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=50" class="rounded-circle me-3" alt="User">
+                        <div><h5 class="mb-0">Priya S.</h5><small class="text-muted">Kanpur</small></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 mb-4" data-aos="fade-up" data-aos-delay="300">
+                <div class="card testimonial-card p-4 h-100">
+                    <p class="fst-italic">"Managing my health records used to be a mess. Now, everything is organized in my profile. The PDF download is a fantastic feature."</p>
+                    <div class="d-flex align-items-center mt-3">
+                        <img src="https://images.unsplash.com/photo-1583864697784-a0efc8379f70?w=50" class="rounded-circle me-3" alt="User">
+                        <div><h5 class="mb-0">R. Verma</h5><small class="text-muted">Delhi</small></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="container my-5 py-5">
+    <div class="text-center mb-5" data-aos="fade-up">
+        <h2 class="fw-bold">Health News & Suggestions</h2>
+        <p class="text-muted">Stay informed with the latest articles and wellness tips.</p>
+    </div>
+    <div class="row">
+        <div class="col-lg-4 mb-4" data-aos="fade-up" data-aos-delay="100">
+            <div class="card news-card h-100 shadow-sm">
+                <img src="https://images.unsplash.com/photo-1504735217152-deee663b689a?q=80&w=2070&auto=format&fit=crop" class="card-img-top" alt="Healthy Food">
+                <div class="card-body">
+                    <h5 class="card-title">The Benefits of a Mediterranean Diet</h5>
+                    <p class="card-text">Discover how this popular diet can improve heart health and reduce inflammation. A look into the science behind the food.</p>
+                    <a href="#" class="btn btn-outline-primary">Read More</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 mb-4" data-aos="fade-up" data-aos-delay="200">
+            <div class="card news-card h-100 shadow-sm">
+                <img src="https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?q=80&w=2120&auto=format&fit=crop" class="card-img-top" alt="Yoga">
+                <div class="card-body">
+                    <h5 class="card-title">5 Simple Yoga Poses for Stress Relief</h5>
+                    <p class="card-text">Learn how a few minutes of daily yoga can significantly reduce stress and improve your mental well-being.</p>
+                    <a href="#" class="btn btn-outline-primary">Read More</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 mb-4" data-aos="fade-up" data-aos-delay="300">
+            <div class="card news-card h-100 shadow-sm">
+                <img src="https://images.unsplash.com/photo-1512314889357-e157c22f938d?q=80&w=2071&auto=format&fit=crop" class="card-img-top" alt="Sleep">
+                <div class="card-body">
+                    <h5 class="card-title">The Importance of Sleep for Your Immune System</h5>
+                    <p class="card-text">Quality sleep is more than just rest. Find out how it directly impacts your body's ability to fight off illness.</p>
+                    <a href="#" class="btn btn-outline-primary">Read More</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

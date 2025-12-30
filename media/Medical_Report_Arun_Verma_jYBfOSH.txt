@@ -1,0 +1,118 @@
+CONFIDENTIAL MEDICAL REPORT 
+
+HOSPITAL: City Central Hospital, Lucknow, Uttar Pradesh
+REPORT DATE: October 24, 2025
+
+PATIENT INFORMATION
+
+PATIENT NAME: Rishabh Singh
+PATIENT ID: MRN-456-7890
+DATE OF BIRTH: July 12, 1973
+AGE: 52
+GENDER: Male
+CONTACT: +91 98765 12345
+ADDRESS: 22B, Hazratganj, Lucknow, Uttar Pradesh
+
+EXAMINATION DETAILS
+
+DATE OF EXAMINATION: October 23, 2025
+ATTENDING PHYSICIAN: Dr. Priya Sharma, MD (Cardiology)
+REFERRING PHYSICIAN: Dr. S. K. Gupta
+
+1. CHIEF COMPLAINT
+
+Patient presents with a two-month history of intermittent chest pressure and shortness of breath upon exertion. He describes the chest pressure as a "dull ache" in the center of his chest which does not radiate. Symptoms typically last for 5-10 minutes and are relieved by rest.
+
+
+2. HISTORY OF PRESENT ILLNESS
+
+Mr. Verma is a 52-year-old male with a known history of hypertension and Type 2 Diabetes. He reports that his symptoms began approximately two months ago and have become more frequent in the last three weeks. He notes experiencing shortness of breath while climbing two flights of stairs at his office and chest discomfort while walking briskly for more than 15 minutes. He denies any chest pain at rest, palpitations, or fainting spells (syncope).
+
+
+3. PAST MEDICAL HISTORY
+
+- Hypertension: Diagnosed 8 years ago, managed with medication.
+- Type 2 Diabetes Mellitus: Diagnosed 5 years ago, managed with medication and diet.
+- Hyperlipidemia (High Cholesterol): Diagnosed 5 years ago.
+
+SURGERIES: No major surgical history.
+
+
+4. CURRENT MEDICATIONS
+
+- Metformin 500 mg, twice daily
+- Amlodipine 5 mg, once daily
+- Atorvastatin 20 mg, once daily
+
+ALLERGIES: No Known Drug Allergies (NKDA).
+
+
+5. FAMILY & SOCIAL HISTORY
+
+FAMILY HISTORY: Father had a myocardial infarction (heart attack) at age 60. Mother has hypertension.
+SOCIAL HISTORY: Former smoker, quit 10 years ago (15-pack-year history). Consumes alcohol socially (1-2 times a month). Works as a software project manager, reports a sedentary lifestyle.
+
+--------------------------------------------------
+6. PHYSICAL EXAMINATION
+--------------------------------------------------
+VITALS:
+- Blood Pressure: 145/90 mmHg (elevated)
+- Heart Rate: 88 bpm (regular rhythm)
+- Respiratory Rate: 18 breaths/min
+- Temperature: 98.6°F (37.0°C)
+
+GENERAL: Alert and oriented, in no acute distress.
+CARDIOVASCULAR: Regular rate and rhythm. A faint S4 gallop was noted. No murmurs or rubs. Carotid pulses are 2+ and equal bilaterally.
+RESPIRATORY: Lungs clear to auscultation bilaterally. No wheezes or crackles.
+
+--------------------------------------------------
+7. DIAGNOSTIC RESULTS
+--------------------------------------------------
+LABORATORY:
+- Complete Blood Count (CBC): Within normal limits.
+- Lipid Panel:
+  - Total Cholesterol: 240 mg/dL (High)
+  - LDL Cholesterol: 160 mg/dL (High)
+  - HDL Cholesterol: 35 mg/dL (Low)
+- HbA1c: 6.8% (Elevated)
+- High-Sensitivity Troponin: < 0.01 ng/mL (Negative for acute injury)
+
+ELECTROCARDIOGRAM (ECG):
+- Normal sinus rhythm. Evidence of Left Ventricular Hypertrophy (LVH) by voltage criteria. No acute ST-segment changes.
+
+ECHOCARDIOGRAM:
+- Left Ventricular Ejection Fraction (LVEF): 55% (Normal range).
+- Mild concentric left ventricular hypertrophy noted.
+- Grade 1 diastolic dysfunction (impaired relaxation of the ventricle).
+
+--------------------------------------------------
+8. ASSESSMENT / IMPRESSION
+--------------------------------------------------
+1.  **Stable Angina Pectoris:** The patient's symptoms are highly suggestive of chest pain due to coronary artery disease, brought on by exertion and relieved by rest.
+2.  **Hypertensive Heart Disease:** Evidenced by the physical exam (S4 gallop) and ECG findings (LVH). Blood pressure remains elevated despite medication.
+3.  **Type 2 Diabetes Mellitus:** Sub-optimally controlled as indicated by the elevated HbA1c.
+4.  **Hyperlipidemia:** Poorly controlled, contributing to his cardiovascular risk.
+
+--------------------------------------------------
+9. PLAN & RECOMMENDATIONS
+--------------------------------------------------
+1.  **Medication Adjustment:**
+    - Initiate Aspirin 81 mg daily.
+    - Initiate Metoprolol 25 mg daily to help control heart rate and angina symptoms.
+    - Increase Atorvastatin to 40 mg daily to target a lower LDL goal.
+2.  **Further Testing:**
+    - Schedule a Cardiac Stress Test (Treadmill Test) to formally assess for ischemia.
+3.  **Lifestyle Counseling:**
+    - Provided extensive counseling on the importance of a low-sodium, low-fat diet.
+    - Recommended 30 minutes of moderate-intensity aerobic exercise, 5 days per week, as tolerated.
+4.  **Follow-up:**
+    - Schedule a follow-up appointment in 4 weeks to review the stress test results and check blood pressure response to new medication.
+
+--------------------------------------------------
+END OF REPORT
+--------------------------------------------------
+Digitally Signed,
+Dr. Priya Sharma, MD
+Cardiologist
+City Central Hospital, Lucknow
+License: UP-MC 12345

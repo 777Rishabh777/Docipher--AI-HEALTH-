@@ -1,0 +1,163 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+    .summary-box {
+        border-radius: 16px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+        overflow: hidden;
+        background: white;
+        border: 1px solid #e0e0e0;
+    }
+    .summary-header { padding: 25px; color: white; font-weight: bold; }
+    .bg-patient { background: linear-gradient(135deg, #43cea2 0%, #185a9d 100%); }
+    .bg-doctor { background: linear-gradient(135deg, #2c3e50 0%, #4ca1af 100%); }
+    .bg-full { background: linear-gradient(135deg, #614385 0%, #516395 100%); }
+
+    /* Mode Buttons */
+    .btn-check:checked + .mode-card {
+        border-color: #185a9d;
+        background-color: #e3f2fd;
+        color: #0d47a1;
+        box-shadow: 0 0 0 2px #185a9d;
+    }
+    .mode-card {
+        border: 2px solid #eee;
+        border-radius: 12px;
+        padding: 12px;
+        cursor: pointer;
+        background: white;
+        display: block; width: 100%;
+        transition: transform 0.2s;
+        margin-bottom: 0;
+    }
+    .mode-card:hover { transform: translateY(-2px); }
+
+    /* Delete Button */
+    .delete-btn {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: rgba(220, 53, 69, 0.9);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s;
+        z-index: 10;
+    }
+    .delete-btn:hover { background: #c82333; transform: scale(1.1); }
+
+    /* AI Content */
+    .ai-content { color: #212529 !important; font-size: 1rem; line-height: 1.6; }
+    .ai-content table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+    .ai-content th { background-color: #f8f9fa; padding: 12px; border: 1px solid #dee2e6; }
+    .ai-content td { padding: 12px; border: 1px solid #dee2e6; }
+    .ai-content h3 { color: #0d47a1; margin-top: 20px; margin-bottom: 15px; font-weight: 700; }
+</style>
+
+<div class="container my-5">
+    <div class="row g-4">
+        
+        <div class="col-lg-4">
+            <div class="card shadow border-0 p-4" style="border-radius: 20px;">
+                <h4 class="mb-4 fw-bold text-primary">📄 Upload Report</h4>
+                
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <div class="mb-4">
+                        {% if not uploaded_image_url %}
+                            <label class="form-label text-muted small fw-bold">SELECT FILE</label>
+                            <input type="file" name="document" class="form-control form-control-lg">
+                        {% else %}
+                            <div class="alert alert-success d-flex align-items-center mb-0">
+                                <i class="bi bi-check-circle-fill me-2"></i> File Loaded
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <label class="form-label text-muted small fw-bold mb-3">MODE</label>
+                    <div class="d-flex flex-column gap-3 mb-4">
+                        <div>
+                            <input type="radio" class="btn-check" name="report_type" id="m1" value="patient" {% if mode == 'patient' %}checked{% endif %}>
+                            <label class="mode-card" for="m1">💚 <strong>Patient Summary</strong><br><small>Simple & Easy</small></label>
+                        </div>
+                        <div>
+                            <input type="radio" class="btn-check" name="report_type" id="m2" value="doctor" {% if mode == 'doctor' %}checked{% endif %}>
+                            <label class="mode-card" for="m2">👨‍⚕️ <strong>Doctor's View</strong><br><small>Clinical Data</small></label>
+                        </div>
+                        <div>
+                            <input type="radio" class="btn-check" name="report_type" id="m3" value="full" {% if mode == 'full' %}checked{% endif %}>
+                            <label class="mode-card" for="m3">📑 <strong>Full Report</strong><br><small>Detailed Tables</small></label>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100 py-3 fw-bold shadow rounded-pill">
+                        {% if uploaded_image_url %}🔄 Regenerate Summary{% else %}🚀 Analyze Report{% endif %}
+                    </button>
+                </form>
+
+                {% if uploaded_image_url %}
+                <div class="mt-4 p-3 bg-light rounded text-center position-relative border">
+                    <form method="post" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" name="clear_file" value="true" class="delete-btn" title="Remove File">
+                            <i class="bi bi-x"></i>
+                        </button>
+                    </form>
+                    
+                    <p class="small text-muted fw-bold mb-2">CURRENT FILE</p>
+                    <img src="{{ uploaded_image_url }}" class="img-fluid rounded shadow-sm" style="max-height: 150px;">
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="col-lg-8">
+            {% if summary %}
+                <div class="summary-box h-100">
+                    <div class="summary-header {% if mode == 'doctor' %}bg-doctor{% elif mode == 'full' %}bg-full{% else %}bg-patient{% endif %}">
+                        <h2 class="mb-0">
+                            {% if mode == 'doctor' %}🩺 Clinical Assessment
+                            {% elif mode == 'full' %}📊 Data Report
+                            {% else %}🌿 Health Summary{% endif %}
+                        </h2>
+                    </div>
+                    
+                    <div class="p-4 p-md-5">
+                        <div class="ai-content">
+                            {{ summary|safe }}
+                        </div>
+
+                        <hr class="my-5">
+                        
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-muted small fst-italic">AI Generated Content</span>
+                            <form method="post" action="{% url 'download_summary_pdf' %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="summary_text" value="{{ summary }}">
+                                <input type="hidden" name="image_url" value="{{ uploaded_image_url }}">
+                                <button class="btn btn-dark btn-lg px-4 rounded-pill">
+                                    <i class="bi bi-download me-2"></i> Download PDF
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="h-100 d-flex flex-column align-items-center justify-content-center text-center p-5 text-muted border rounded bg-light" style="border-style: dashed !important; min-height: 500px;">
+                    <i class="bi bi-cloud-upload display-1 mb-3"></i>
+                    <h3>Ready to Analyze</h3>
+                    <p>Upload a report to begin.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

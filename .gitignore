@@ -1,0 +1,14 @@
+# .gitignore
+
+# Environment variables
+.env
+
+# Python
+__pycache__/
+*.pyc
+
+# Virtual environment
+venv/
+
+# Database
+db.sqlite3

@@ -1,0 +1,243 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    .profile-main-container {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 2.5rem 1rem 2rem 1rem;
+    }
+    .profile-sidebar {
+        background: #fff;
+        border-radius: 18px;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.07);
+        padding: 2rem 1.5rem 1.5rem 1.5rem;
+        margin-bottom: 2rem;
+    }
+    .profile-picture {
+        width: 140px;
+        height: 140px;
+        object-fit: cover;
+        border-radius: 50%;
+        border: 4px solid #f1f3f6;
+        margin-bottom: 1rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    .profile-completion-bar {
+        height: 7px;
+        border-radius: 5px;
+    }
+    .profile-section-card {
+        background: #fff;
+        border-radius: 18px;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.07);
+        margin-bottom: 2rem;
+        padding: 2rem 1.5rem 1.5rem 1.5rem;
+    }
+    @media (max-width: 991px) {
+        .profile-main-container { padding: 1.5rem 0.5rem; }
+        .profile-sidebar, .profile-section-card { padding: 1.2rem 0.7rem; }
+    }
+</style>
+
+<div class="profile-main-container">
+    <div class="row g-4">
+        <div class="col-lg-4">
+            <div class="profile-sidebar text-center">
+                {% if user.patientprofile.profile_picture %}
+                    <img src="{{ user.patientprofile.profile_picture.url }}" alt="Profile Picture" class="profile-picture">
+                {% else %}
+                    <img src="{% static 'profile_pics/default.jpg' %}" alt="Default Profile Picture" class="profile-picture">
+                {% endif %}
+                <h4 class="fw-bold mb-1">{{ user.first_name }} {{ user.last_name }}</h4>
+                <div class="text-muted mb-2">@{{ user.username }}</div>
+                <div class="mb-3">
+                    <div class="d-flex align-items-center justify-content-between mb-1">
+                        <span class="small text-muted">Profile Completion</span>
+                        <span class="small fw-semibold">{{ completeness_percentage }}%</span>
+                    </div>
+                    <div class="progress profile-completion-bar">
+                        <div class="progress-bar bg-primary" role="progressbar" style="width: {{ completeness_percentage }}%" aria-label="Profile completeness: {{ completeness_percentage }}%" title="Profile completeness: {{ completeness_percentage }}%"></div>
+                    </div>
+                </div>
+                <div class="d-grid gap-2 mb-3">
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editProfileModal"><i class="bi bi-pencil-square me-2"></i>Edit Profile</button>
+                    <a href="{% url 'download_profile_pdf' %}" class="btn btn-outline-danger"><i class="bi bi-file-earmark-pdf me-2"></i>Download PDF</a>
+                </div>
+                <div class="mt-4">
+                    <h6 class="fw-semibold">Need Help?</h6>
+                    <p class="small text-muted mb-2">Click for a quick tour of your dashboard.</p>
+                    <button class="btn btn-outline-info w-100" type="button" data-bs-toggle="offcanvas" data-bs-target="#tutorialOffcanvas">
+                        <i class="bi bi-question-circle me-2"></i>Show Tutorial
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-8">
+            {% if messages %}{% for message in messages %}
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    {{ message }} <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close alert" title="Close"></button>
+                </div>
+            {% endfor %}{% endif %}
+            <div class="profile-section-card">
+                <h5 class="card-title text-primary mb-3"><i class="bi bi-person-fill me-2"></i>Personal Details</h5>
+                <div class="row g-3">
+                    <div class="col-sm-6">
+                        <div class="fw-semibold">Full Name</div>
+                        <div class="text-muted">{{ user.first_name }} {{ user.last_name }}</div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="fw-semibold">Username</div>
+                        <div class="text-muted">{{ user.username }}</div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="fw-semibold">Email</div>
+                        <div class="text-muted">{{ user.email }}</div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="fw-semibold">Date of Birth</div>
+                        <div class="text-muted">{{ user.patientprofile.date_of_birth|default:"Not set" }}</div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="fw-semibold">Gender</div>
+                        <div class="text-muted">{{ user.patientprofile.gender|default:"Not set" }}</div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="fw-semibold">Contact Number</div>
+                        <div class="text-muted">{{ user.patientprofile.contact_number|default:"Not set" }}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="profile-section-card">
+                <h5 class="card-title text-primary mb-3"><i class="bi bi-heart-pulse-fill me-2"></i>Medical Vitals</h5>
+                <div class="row g-3">
+                    <div class="col-sm-4">
+                        <div class="fw-semibold">Blood Group</div>
+                        <div class="text-muted">{{ user.patientprofile.blood_group|default:"Not set" }}</div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="fw-semibold">Height (cm)</div>
+                        <div class="text-muted">{{ user.patientprofile.height|default:"Not set" }}</div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="fw-semibold">Weight (kg)</div>
+                        <div class="text-muted">{{ user.patientprofile.weight|default:"Not set" }}</div>
+                    </div>
+                </div>
+                <hr>
+                <div class="row g-3">
+                    <div class="col-sm-6">
+                        <div class="fw-semibold">Primary Doctor</div>
+                        <div class="text-muted">{{ user.patientprofile.primary_care_physician|default:"Not set" }}</div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="fw-semibold">Doctor's Contact</div>
+                        <div class="text-muted">{{ user.patientprofile.physician_contact|default:"Not set" }}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="profile-section-card">
+                <h5 class="card-title text-primary mb-3"><i class="bi bi-journal-medical me-2"></i>Medical History</h5>
+                <div class="row g-3">
+                    <div class="col-sm-6">
+                        <div class="fw-semibold">Chronic Conditions</div>
+                        <div class="text-muted">{{ user.patientprofile.chronic_conditions|default:"None listed." }}</div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="fw-semibold">Allergies</div>
+                        <div class="text-muted">{{ user.patientprofile.allergies|default:"None listed." }}</div>
+                    </div>
+                    <div class="col-12">
+                        <div class="fw-semibold">Past Surgeries / Major Illnesses</div>
+                        <div class="text-muted">{{ user.patientprofile.past_surgeries|default:"None listed." }}</div>
+                    </div>
+                    <div class="col-12">
+                        <div class="fw-semibold">Current Medications</div>
+                        <div class="text-muted">{{ user.patientprofile.current_medications|default:"None listed." }}</div>
+                    </div>
+                    <div class="col-12">
+                        <div class="fw-semibold">Family Medical History</div>
+                        <div class="text-muted">{{ user.patientprofile.family_medical_history|default:"None listed." }}</div>
+                    </div>
+                    <div class="col-12">
+                        <div class="fw-semibold">Immunization History</div>
+                        <div class="text-muted">{{ user.patientprofile.immunization_history|default:"None listed." }}</div>
+                    </div>
+                    <div class="col-12">
+                        <div class="fw-semibold">Past Major Illnesses</div>
+                        <div class="text-muted">{{ user.patientprofile.past_major_illnesses|default:"None listed." }}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="profile-section-card">
+                <h5 class="card-title text-primary mb-3"><i class="bi bi-bicycle me-2"></i>Lifestyle</h5>
+                <div class="row g-3">
+                    <div class="col-sm-6">
+                        <div class="fw-semibold">Smoking Status</div>
+                        <div class="text-muted">{{ user.patientprofile.smoking_status|default:"Not set" }}</div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="fw-semibold">Alcohol Consumption</div>
+                        <div class="text-muted">{{ user.patientprofile.alcohol_consumption|default:"Not set" }}</div>
+                    </div>
+                    <div class="col-12">
+                        <div class="fw-semibold">Dietary Notes</div>
+                        <div class="text-muted">{{ user.patientprofile.dietary_notes|default:"None listed." }}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="profile-section-card">
+                <h5 class="card-title text-danger mb-3"><i class="bi bi-telephone-fill me-2"></i>Emergency Contact</h5>
+                <div class="row g-3">
+                    <div class="col-sm-6">
+                        <div class="fw-semibold">Contact Name</div>
+                        <div class="text-muted">{{ user.patientprofile.emergency_contact_name|default:"Not set" }}</div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="fw-semibold">Contact Phone</div>
+                        <div class="text-muted">{{ user.patientprofile.emergency_contact_phone|default:"Not set" }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="editProfileModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header"><h5 class="modal-title">Edit Your Profile</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close modal" title="Close"></button></div>
+            <div class="modal-body">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <h6 class="text-primary">Personal Details</h6>
+                    {{ user_form.as_p }}
+                    <hr class="my-4">
+                    <h6 class="text-primary">Medical Details</h6>
+                    {{ profile_form.as_p }}
+                    <div class="d-grid mt-4">
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="offcanvas offcanvas-end" tabindex="-1" id="tutorialOffcanvas">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title"><i class="bi bi-info-circle-fill me-2"></i>Dashboard Tutorial</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close offcanvas" title="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+        <h6>Welcome to Your Dashboard!</h6>
+        <p>This is your central hub for managing your health information.</p><hr>
+        <p><strong>1. Edit Your Profile:</strong> Click the "Edit Profile" button to update your personal and medical details. Don't forget to upload a profile picture!</p>
+        <p><strong>2. Download a PDF:</strong> Need a copy? The "Download PDF" button creates a professional summary.</p>
+        <p><strong>3. Profile Completeness:</strong> The meter shows how complete your profile is. Aim for 100%!</p>
+        <p><strong>4. Use the Navbar:</strong> All tools are just a click away in the navigation bar.</p>
+    </div>
+</div>
+{% endblock %}

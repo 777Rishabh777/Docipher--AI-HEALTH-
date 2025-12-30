@@ -1,0 +1,231 @@
+{% extends 'base.html' %}
+
+{% block title %}My Reminders{% endblock %}
+
+{% block content %}
+<style>
+    .reminders-main-container {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 2.5rem 1rem 2rem 1rem;
+        position: relative;
+    }
+    .reminders-main-container::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="1" fill="rgba(25, 118, 210, 0.05)"/><circle cx="80" cy="40" r="1.5" fill="rgba(25, 118, 210, 0.05)"/><circle cx="60" cy="80" r="1" fill="rgba(25, 118, 210, 0.05)"/><circle cx="40" cy="60" r="1.5" fill="rgba(25, 118, 210, 0.05)"/><circle cx="90" cy="20" r="1" fill="rgba(25, 118, 210, 0.05)"/></svg>');
+        animation: float 6s ease-in-out infinite;
+        pointer-events: none;
+    }
+    @keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
+    }
+    .reminder-card, .reminder-list-card {
+        background: #fff;
+        border-radius: 24px;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        margin-bottom: 2rem;
+        padding: 2rem 1.5rem 1.5rem 1.5rem;
+        border-top: 6px solid #1976d2;
+        border: 1px solid rgba(255,255,255,0.8);
+        -webkit-backdrop-filter: blur(10px);
+        backdrop-filter: blur(10px);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    .reminder-card:hover, .reminder-list-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+    }
+    .reminder-card::before, .reminder-list-card::before {
+        content: '💊';
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        font-size: 1.5rem;
+        opacity: 0.2;
+        animation: pulse 3s ease-in-out infinite;
+    }
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+    }
+    .reminder-list-card {
+        padding: 1.5rem 1.2rem 1.2rem 1.2rem;
+    }
+    .reminder-card button[type="submit"] {
+        background: linear-gradient(135deg, #ff6b6b 0%, #4ecdc4 50%, #45b7d1 100%);
+        border: none;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        box-shadow: 0 4px 16px rgba(255, 107, 107, 0.3);
+        transition: all 0.3s ease;
+        border-radius: 12px;
+        padding: 0.75rem 2rem;
+    }
+    .reminder-card button[type="submit"]:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+        background: linear-gradient(135deg, #4ecdc4 0%, #45b7d1 50%, #ff6b6b 100%);
+    }
+    .reminder-item {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 16px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        border-left: 6px solid #1976d2;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    .reminder-item:hover {
+        transform: translateX(5px);
+        box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+    }
+    .reminder-item::before {
+        content: '⏰';
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        font-size: 1.2rem;
+        opacity: 0.3;
+        animation: bounce 4s ease-in-out infinite;
+    }
+    @keyframes bounce {
+        0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+        40% { transform: translateY(-3px); }
+        60% { transform: translateY(-2px); }
+    }
+    .reminder-item.completed {
+        background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+        border-left-color: #28a745;
+    }
+    .reminder-actions {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+    .reminder-actions .btn {
+        border-radius: 8px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+    .reminder-actions .btn:hover {
+        transform: scale(1.05);
+    }
+    .form-control {
+        border-radius: 12px;
+        border: 2px solid #dee2e6;
+        transition: all 0.3s ease;
+    }
+    .form-control:focus {
+        border-color: #1976d2;
+        box-shadow: 0 0 0 0.2rem rgba(25, 118, 210, 0.25);
+    }
+    .modal-content {
+        border-radius: 16px;
+        border: none;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    }
+    .modal-header {
+        background: linear-gradient(135deg, #1976d2 0%, #7b1fa2 100%);
+        color: white;
+        border-radius: 16px 16px 0 0;
+        border-bottom: none;
+    }
+    .modal-footer .btn {
+        border-radius: 8px;
+        font-weight: 500;
+    }
+    @media (max-width: 991px) {
+        .reminders-main-container { padding: 1.5rem 0.5rem; }
+        .reminder-card, .reminder-list-card { padding: 1.2rem 0.7rem; }
+    }
+</style>
+
+<div class="reminders-main-container">
+    <div class="row g-4">
+        <div class="col-lg-4 col-md-6">
+            <div class="reminder-card">
+                <h3 class="card-title mb-3">Add New Reminder</h3>
+                <form method="post" aria-label="Add new reminder">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <div class="d-grid mt-3">
+                        <button type="submit" class="btn btn-primary" aria-label="Add Reminder">Add Reminder</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="col-lg-8 col-md-6">
+            <div class="reminder-list-card">
+                <h3 class="mb-3">My Daily Reminders</h3>
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-success" role="alert">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+                <div class="reminder-list">
+                    {% for reminder in reminders %}
+                        <div class="reminder-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <h5 class="mb-1">{{ reminder.medicine_name }}</h5>
+                                <p class="mb-1"><strong>Dosage:</strong> {{ reminder.dosage|default:"N/A" }}</p>
+                                <small class="text-muted"><strong>Time:</strong> {{ reminder.reminder_time|time:"g:i A" }}</small>
+                            </div>
+                            <div class="reminder-actions">
+                                <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editReminderModal{{ reminder.id }}" aria-label="Edit reminder">Edit</button>
+                                <form method="post" onsubmit="return confirm('Are you sure you want to delete this reminder?');" style="display:inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" name="delete_reminder" value="{{ reminder.id }}" class="btn btn-outline-danger btn-sm" aria-label="Delete reminder">Delete</button>
+                                </form>
+                            </div>
+                        </div>
+                        <!-- Edit Modal -->
+                        <div class="modal fade" id="editReminderModal{{ reminder.id }}" tabindex="-1">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Edit Reminder</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <form method="post">
+                                        {% csrf_token %}
+                                        <div class="modal-body">
+                                            <input type="hidden" name="edit_reminder" value="{{ reminder.id }}">
+                                            <div class="mb-3">
+                                                <label for="medicine_name{{ reminder.id }}" class="form-label">Medicine Name</label>
+                                                <input type="text" class="form-control" id="medicine_name{{ reminder.id }}" name="medicine_name" value="{{ reminder.medicine_name }}" required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="dosage{{ reminder.id }}" class="form-label">Dosage</label>
+                                                <input type="text" class="form-control" id="dosage{{ reminder.id }}" name="dosage" value="{{ reminder.dosage }}">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="reminder_time{{ reminder.id }}" class="form-label">Time</label>
+                                                <input type="time" class="form-control" id="reminder_time{{ reminder.id }}" name="reminder_time" value="{{ reminder.reminder_time|time:'H:i' }}" required>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    {% empty %}
+                        <div class="reminder-item text-center text-muted">You have no reminders set. Use the form to add one.</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

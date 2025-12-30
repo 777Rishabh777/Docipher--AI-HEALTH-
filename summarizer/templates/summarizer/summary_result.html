@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block title %}Summary Result{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+  <div class="row">
+    <div class="col-md-8">
+      <h3>Generated Summary</h3>
+      <div class="card p-3 mb-3">
+        <p>{{ summary }}</p>
+      </div>
+
+      <h5>Original Extracted Text</h5>
+      <div class="card p-3 mb-3">
+        <pre style="white-space:pre-wrap;">{{ original_text }}</pre>
+      </div>
+
+      <form method="post" action="{% url 'download_summary_pdf' %}">
+        {% csrf_token %}
+        <input type="hidden" name="summary_text" value="{{ summary }}">
+        <input type="hidden" name="original_text" value="{{ original_text }}">
+        <input type="hidden" name="image_url" value="{{ uploaded_image_url }}">
+        <button class="btn btn-primary">Download PDF</button>
+      </form>
+    </div>
+    <div class="col-md-4">
+      {% if uploaded_image_url %}
+        <h5>Uploaded Image</h5>
+        <img src="{{ uploaded_image_url }}" class="img-fluid rounded shadow" alt="Uploaded image">
+      {% endif %}
+
+      <div class="mt-4">
+        <a href="{% url 'summarizer' %}" class="btn btn-outline-secondary">Back</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
