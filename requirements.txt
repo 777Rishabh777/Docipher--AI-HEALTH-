@@ -3,5 +3,5 @@ google-generativeai
 python-dotenv
 gunicorn
 requests
-jazzmin
-anymail
+django-jazzmin
+django-anymail
