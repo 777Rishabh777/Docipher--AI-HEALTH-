@@ -113,3 +113,4 @@ flask-gunicorn
 flask-cors
 pymongo
 certifi
+Django
