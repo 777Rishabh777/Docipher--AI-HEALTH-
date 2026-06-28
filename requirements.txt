@@ -5,3 +5,18 @@ gunicorn
 requests
 django-jazzmin
 django-anymail
+# Production DB (Neon PostgreSQL - free)
+psycopg2-binary
+dj-database-url
+# Static files on Vercel (no extra service needed)
+whitenoise
+# Media/image uploads (Cloudinary - free tier)
+cloudinary
+django-cloudinary-storage
+# PDF generation
+xhtml2pdf
+Pillow
+pypdf
+python-docx
+pandas
+openpyxl

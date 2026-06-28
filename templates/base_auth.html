@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Docipher{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        dark: '#0a0a0f',
+                        surface: '#111118',
+                        card: '#1a1a2e',
+                        primary: '#6366f1',
+                        accent: '#06b6d4',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #0a0a0f;
+            color: #f3f4f6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        /* Animated Background Pattern */
+        .bg-pattern {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-image: 
+                radial-gradient(circle at 15% 50%, rgba(99, 102, 241, 0.15), transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(6, 182, 212, 0.15), transparent 25%);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .glass-card {
+            background: rgba(26, 26, 46, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        .text-gradient {
+            background: linear-gradient(135deg, #6366f1, #06b6d4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        /* Input styling */
+        .input-floating {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            transition: all 0.3s ease;
+        }
+        .input-floating:focus {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: #6366f1;
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+            outline: none;
+        }
+
+        /* Floating Topbar matching Dashboard */
+        .topbar-container {
+            position: fixed;
+            top: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 95%;
+            max-width: 1200px;
+            z-index: 50;
+        }
+        .floating-nav {
+            background: rgba(26, 26, 46, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
+            border-radius: 9999px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.4rem 1rem;
+        }
+        .nav-link {
+            color: #cbd5e1;
+            padding: 0.35rem 0.6rem;
+            border-radius: 9999px;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+        }
+    </style>
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="antialiased font-sans">
+    <div class="bg-pattern"></div>
+
+    <!-- Floating Topbar -->
+    <div class="topbar-container">
+        <nav class="floating-nav">
+            <a href="{% url 'home' %}" class="text-xl font-bold flex items-center gap-2 transition hover:scale-105">
+                <i class="fa-solid fa-staff-snake text-primary"></i>
+                <span class="text-gradient">Docipher</span>
+            </a>
+            <div class="hidden md:flex items-center gap-1 xl:gap-2">
+                <a href="{% url 'home' %}" class="nav-link"><i class="fas fa-home"></i> Home</a>
+                <a href="{% url 'about' %}" class="nav-link"><i class="fas fa-info-circle"></i> About</a>
+                <a href="{% url 'pricing' %}" class="nav-link"><i class="fas fa-tags"></i> Pricing</a>
+                <a href="{% url 'contact' %}" class="nav-link"><i class="fas fa-envelope"></i> Contact</a>
+            </div>
+            <div class="flex items-center gap-2">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'dashboard' %}" class="px-4 py-1.5 rounded-full bg-primary hover:bg-indigo-600 text-white font-medium text-sm transition shadow-lg shadow-indigo-500/30">Dashboard</a>
+                {% else %}
+                    <a href="{% url 'login' %}" class="nav-link">Log In</a>
+                    <a href="{% url 'register' %}" class="px-4 py-1.5 rounded-full bg-primary hover:bg-indigo-600 text-white font-medium text-sm transition shadow-lg shadow-indigo-500/30">Get Started</a>
+                {% endif %}
+            </div>
+        </nav>
+    </div>
+
+    <main class="flex-grow flex flex-col justify-center pt-24 pb-12">
+        {% if messages %}
+            <div class="fixed top-24 right-4 z-50 flex flex-col gap-2">
+                {% for message in messages %}
+                    <div class="p-4 rounded-lg shadow-lg glass-card text-sm flex items-center gap-3 animate-fade-in-down border-l-4 
+                        {% if message.tags == 'error' %}border-red-500 text-red-100{% elif message.tags == 'success' %}border-green-500 text-green-100{% else %}border-blue-500 text-blue-100{% endif %}"
+                        role="alert" data-aos="fade-left">
+                        <i class="fas {% if message.tags == 'error' %}fa-exclamation-circle text-red-500{% elif message.tags == 'success' %}fa-check-circle text-green-500{% else %}fa-info-circle text-blue-500{% endif %}"></i>
+                        {{ message }}
+                        <button onclick="this.parentElement.style.display='none'" class="ml-auto text-gray-400 hover:text-white">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="glass-card mt-auto border-t border-b-0 border-l-0 border-r-0 border-opacity-20 border-primary">
+        <div class="container mx-auto px-6 py-12">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8 text-center md:text-left">
+                <div class="md:col-span-1">
+                    <a href="{% url 'home' %}" class="text-2xl font-bold flex items-center justify-center md:justify-start gap-2 mb-4">
+                        <i class="fa-solid fa-staff-snake text-primary"></i>
+                        <span class="text-gradient">Docipher</span>
+                    </a>
+                    <p class="text-gray-400 text-sm mb-6 leading-relaxed">Simplifying your health journey with the power of Artificial Intelligence. Secure, fast, and reliable.</p>
+                    <div class="flex justify-center md:justify-start gap-4 text-xl">
+                        <a href="#" class="text-gray-400 hover:text-primary transition hover:-translate-y-1"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white transition hover:-translate-y-1"><i class="fab fa-github"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-blue-500 transition hover:-translate-y-1"><i class="fab fa-linkedin"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-pink-500 transition hover:-translate-y-1"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 class="text-white font-semibold mb-4 text-lg">Platform</h4>
+                    <ul class="space-y-2 text-sm text-gray-400">
+                        <li><a href="{% url 'summarizer' %}" class="hover:text-primary transition">AI Summarizer</a></li>
+                        <li><a href="{% url 'chatbot' %}" class="hover:text-primary transition">Medical Copilot</a></li>
+                        <li><a href="{% url 'reminders' %}" class="hover:text-primary transition">Smart Reminders</a></li>
+                        <li><a href="{% url 'profile' %}" class="hover:text-primary transition">Health Vault</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-white font-semibold mb-4 text-lg">Company</h4>
+                    <ul class="space-y-2 text-sm text-gray-400">
+                        <li><a href="{% url 'about' %}" class="hover:text-primary transition">About Us</a></li>
+                        <li><a href="{% url 'contact' %}" class="hover:text-primary transition">Contact</a></li>
+                        <li><a href="{% url 'pricing' %}" class="hover:text-primary transition">Pricing Plans</a></li>
+                        <li><a href="#" class="hover:text-primary transition">Careers</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-white font-semibold mb-4 text-lg">Legal</h4>
+                    <ul class="space-y-2 text-sm text-gray-400">
+                        <li><a href="{% url 'privacy_policy' %}" class="hover:text-primary transition">Privacy Policy</a></li>
+                        <li><a href="{% url 'terms_of_service' %}" class="hover:text-primary transition">Terms of Service</a></li>
+                        <li><a href="{% url 'hipaa_compliance' %}" class="hover:text-primary transition">HIPAA Compliance</a></li>
+                        <li><a href="{% url 'security' %}" class="hover:text-primary transition">Security</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center text-sm text-gray-500">
+                <p>&copy; 2025 Docipher. All rights reserved.</p>
+                <p class="mt-2 md:mt-0 flex items-center gap-1">Made with <i class="fas fa-heart text-red-500 animate-pulse"></i> for better healthcare</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ThreeJS & Vanta Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.net.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.halo.min.js"></script>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({ duration: 800, once: true });
+        
+        // Auto-dismiss messages
+        setTimeout(() => {
+            const messages = document.querySelectorAll('[role="alert"]');
+            messages.forEach(msg => {
+                msg.style.opacity = '0';
+                msg.style.transition = 'opacity 0.5s ease';
+                setTimeout(() => msg.remove(), 500);
+            });
+        }, 5000);
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

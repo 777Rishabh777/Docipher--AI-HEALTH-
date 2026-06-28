@@ -1,0 +1,69 @@
+{% extends 'base_auth.html' %}
+
+{% block title %}HIPAA Compliance | Docipher{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto px-6 py-16 text-slate-300">
+    <div class="text-center mb-12">
+        <h1 class="text-5xl font-extrabold text-white mb-4 tracking-tight">HIPAA Compliance</h1>
+        <p class="text-lg text-slate-400">Our unwavering commitment to the privacy of your Protected Health Information (PHI).</p>
+    </div>
+    
+    <div class="glass-card p-10 rounded-3xl space-y-8 text-lg leading-relaxed shadow-2xl">
+        <div class="flex flex-col md:flex-row items-center gap-8 mb-8 pb-8 border-b border-white/10">
+            <div class="w-32 h-32 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-400 text-6xl shadow-[0_0_30px_rgba(59,130,246,0.3)] shrink-0">
+                <i class="fas fa-shield-virus"></i>
+            </div>
+            <div>
+                <h2 class="text-3xl font-bold text-white mb-4">What is HIPAA?</h2>
+                <p class="text-slate-300">The Health Insurance Portability and Accountability Act (HIPAA) is a federal law that required the creation of national standards to protect sensitive patient health information from being disclosed without the patient’s consent or knowledge. At Docipher, we embrace these standards not just as a legal requirement, but as a moral imperative to protect our users.</p>
+            </div>
+        </div>
+        
+        <section>
+            <h2 class="text-3xl font-bold text-white mb-6 flex items-center gap-3"><i class="fas fa-lock text-green-400"></i> Physical & Technical Safeguards</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-white/5 p-6 rounded-2xl border border-white/10 hover:border-green-400/50 transition">
+                    <h3 class="text-xl font-bold text-white mb-2">End-to-End Encryption</h3>
+                    <p class="text-sm text-slate-400">All PHI transmitted between your browser, our servers, and our LLM partners is encrypted using industry-standard TLS 1.3. Your data is protected from interception in transit.</p>
+                </div>
+                <div class="bg-white/5 p-6 rounded-2xl border border-white/10 hover:border-green-400/50 transition">
+                    <h3 class="text-xl font-bold text-white mb-2">Encryption at Rest</h3>
+                    <p class="text-sm text-slate-400">All data stored in our databases, document storage buckets, and backups is encrypted at rest using AES-256 encryption. We utilize advanced key management systems (KMS).</p>
+                </div>
+                <div class="bg-white/5 p-6 rounded-2xl border border-white/10 hover:border-green-400/50 transition">
+                    <h3 class="text-xl font-bold text-white mb-2">Access Controls</h3>
+                    <p class="text-sm text-slate-400">We enforce strict Role-Based Access Controls (RBAC). Docipher engineers do not have direct access to your PHI unless explicitly required for support and authorized by you.</p>
+                </div>
+                <div class="bg-white/5 p-6 rounded-2xl border border-white/10 hover:border-green-400/50 transition">
+                    <h3 class="text-xl font-bold text-white mb-2">Audit Logging</h3>
+                    <p class="text-sm text-slate-400">Comprehensive audit trails track all system access, data modifications, and API calls. Any unauthorized access attempts are immediately flagged and investigated.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="mt-12">
+            <h2 class="text-3xl font-bold text-white mb-6 flex items-center gap-3"><i class="fas fa-users-cog text-primary"></i> Administrative Safeguards</h2>
+            <ul class="list-disc pl-8 space-y-4 text-slate-300">
+                <li><strong>Security Personnel:</strong> We have a designated Security Officer responsible for the development and implementation of the security policies and procedures required by HIPAA.</li>
+                <li><strong>Workforce Training:</strong> Every Docipher employee undergoes mandatory, rigorous HIPAA compliance and data security training upon hire, and annually thereafter.</li>
+                <li><strong>Incident Response Plan:</strong> We maintain a robust Incident Response Plan to address and mitigate any potential security incidents or data breaches, including rapid notification procedures as mandated by the HIPAA Breach Notification Rule.</li>
+            </ul>
+        </section>
+        
+        <section class="mt-12 p-8 rounded-3xl bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700">
+            <h2 class="text-2xl font-bold text-white mb-4 flex items-center gap-3"><i class="fas fa-file-signature text-accent"></i> Business Associate Agreements (BAAs)</h2>
+            <p class="text-slate-300 mb-4">We do not share your PHI with any third-party vendor without executing a formal Business Associate Agreement (BAA).</p>
+            <p class="text-slate-300">Crucially, this applies to the AI Language Models that power Docipher. We use enterprise-grade APIs from our LLM providers (such as Google Cloud Vertex AI or OpenAI Enterprise) backed by BAAs. This guarantees that:</p>
+            <ul class="list-disc pl-8 mt-4 space-y-2 text-white font-medium">
+                <li>Your data is <span class="text-accent">NOT</span> used to train their public or foundation models.</li>
+                <li>Your data is processed securely and deleted from their temporary processing memory according to strict retention policies (often zero-data retention).</li>
+            </ul>
+        </section>
+
+        <div class="text-center pt-8 border-t border-white/10 mt-8">
+            <p class="text-slate-400">If you require a BAA for your clinic or enterprise, please contact <a href="mailto:compliance@docipher.com" class="text-primary hover:underline">compliance@docipher.com</a>.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

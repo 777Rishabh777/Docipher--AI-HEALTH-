@@ -1,0 +1,234 @@
+{% extends 'base_dashboard.html' %}
+
+{% block title %}Medical Match Game | Docipher{% endblock %}
+
+{% block content %}
+<style>
+    .game-board {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1rem;
+        max-width: 600px;
+        margin: 0 auto;
+        perspective: 1000px;
+    }
+    
+    .memory-card {
+        aspect-ratio: 1;
+        position: relative;
+        transform-style: preserve-3d;
+        transition: transform 0.5s;
+        cursor: pointer;
+    }
+    
+    .memory-card.flip {
+        transform: rotateY(180deg);
+    }
+    
+    .front-face, .back-face {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        backface-visibility: hidden;
+        border-radius: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    
+    .front-face {
+        transform: rotateY(180deg);
+        background: #ffffff;
+        border: 2px solid #e2e8f0;
+    }
+    .dark .front-face {
+        background: #1e293b;
+        border-color: #334155;
+    }
+    
+    .back-face {
+        background: linear-gradient(135deg, #0ea5e9, #2563eb);
+        color: white;
+        font-size: 2rem;
+    }
+    
+    .victory-modal {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.5);
+        backdrop-filter: blur(5px);
+        z-index: 100;
+        align-items: center;
+        justify-content: center;
+    }
+    .victory-modal.active {
+        display: flex;
+        animation: fadeIn 0.3s ease-out;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    @media (max-width: 640px) {
+        .game-board { gap: 0.5rem; }
+        .front-face, .back-face { font-size: 2rem; border-radius: 0.5rem; }
+    }
+</style>
+
+<div class="max-w-4xl mx-auto py-8 text-center px-4">
+    
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-slate-800 dark:text-white mb-2">Medical Match</h1>
+        <p class="text-slate-500 dark:text-slate-400">Match the pairs to train your brain and earn +10 points!</p>
+        <div class="mt-4 flex justify-center gap-6 text-lg font-bold">
+            <div class="px-4 py-2 bg-white dark:bg-slate-800 rounded-xl shadow-sm text-primary">
+                Matches: <span id="matches">0</span>/8
+            </div>
+            <div class="px-4 py-2 bg-white dark:bg-slate-800 rounded-xl shadow-sm text-emerald-500">
+                Moves: <span id="moves">0</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="game-board" id="gameBoard">
+        <!-- Cards injected via JS -->
+    </div>
+    
+</div>
+
+<!-- Victory Modal -->
+<div class="victory-modal" id="victoryModal">
+    <div class="bg-white dark:bg-slate-800 p-8 rounded-3xl max-w-sm w-full mx-4 text-center shadow-2xl transform scale-100 transition-transform">
+        <div class="text-6xl mb-4">🏆</div>
+        <h2 class="text-2xl font-bold text-slate-800 dark:text-white mb-2">You Won!</h2>
+        <p class="text-slate-500 dark:text-slate-400 mb-6">You completed the game in <span id="finalMoves" class="font-bold"></span> moves.</p>
+        
+        <div class="bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 p-3 rounded-xl font-bold mb-6 flex items-center justify-center gap-2">
+            <i class="fas fa-coins"></i> +10 Points Earned!
+        </div>
+        
+        <div class="flex gap-4 justify-center">
+            <button onclick="resetGame()" class="px-6 py-2 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-800 dark:text-white rounded-full font-medium transition">Play Again</button>
+            <a href="{% url 'rewards' %}" class="px-6 py-2 bg-primary hover:bg-blue-600 text-white rounded-full font-medium transition shadow-md hover:shadow-lg">Back to Rewards</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    const emojis = ['💊', '🏥', '🩺', '🚑', '💉', '🧬', '🔬', '🩹'];
+    let cardsArray = [...emojis, ...emojis];
+    
+    let hasFlippedCard = false;
+    let lockBoard = false;
+    let firstCard, secondCard;
+    let matches = 0;
+    let moves = 0;
+    
+    const gameBoard = document.getElementById('gameBoard');
+    const matchesDisplay = document.getElementById('matches');
+    const movesDisplay = document.getElementById('moves');
+    
+    function shuffle() {
+        cardsArray.sort(() => Math.random() - 0.5);
+    }
+    
+    function createBoard() {
+        gameBoard.innerHTML = '';
+        shuffle();
+        cardsArray.forEach(emoji => {
+            const card = document.createElement('div');
+            card.classList.add('memory-card');
+            card.dataset.emoji = emoji;
+            
+            card.innerHTML = `
+                <div class="front-face">${emoji}</div>
+                <div class="back-face"><i class="fas fa-plus"></i></div>
+            `;
+            
+            card.addEventListener('click', flipCard);
+            gameBoard.appendChild(card);
+        });
+    }
+    
+    function flipCard() {
+        if (lockBoard) return;
+        if (this === firstCard) return;
+        
+        this.classList.add('flip');
+        
+        if (!hasFlippedCard) {
+            hasFlippedCard = true;
+            firstCard = this;
+            return;
+        }
+        
+        secondCard = this;
+        moves++;
+        movesDisplay.textContent = moves;
+        checkForMatch();
+    }
+    
+    function checkForMatch() {
+        let isMatch = firstCard.dataset.emoji === secondCard.dataset.emoji;
+        isMatch ? disableCards() : unflipCards();
+    }
+    
+    function disableCards() {
+        firstCard.removeEventListener('click', flipCard);
+        secondCard.removeEventListener('click', flipCard);
+        
+        matches++;
+        matchesDisplay.textContent = matches;
+        
+        if (matches === 8) {
+            setTimeout(winGame, 500);
+        }
+        
+        resetBoard();
+    }
+    
+    function unflipCards() {
+        lockBoard = true;
+        setTimeout(() => {
+            firstCard.classList.remove('flip');
+            secondCard.classList.remove('flip');
+            resetBoard();
+        }, 1000);
+    }
+    
+    function resetBoard() {
+        [hasFlippedCard, lockBoard] = [false, false];
+        [firstCard, secondCard] = [null, null];
+    }
+    
+    function winGame() {
+        document.getElementById('finalMoves').textContent = moves;
+        document.getElementById('victoryModal').classList.add('active');
+        
+        // Award points via AJAX
+        fetch('{% url "add_game_points" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({ points: 10 })
+        });
+    }
+    
+    function resetGame() {
+        document.getElementById('victoryModal').classList.remove('active');
+        matches = 0;
+        moves = 0;
+        matchesDisplay.textContent = matches;
+        movesDisplay.textContent = moves;
+        createBoard();
+    }
+    
+    // Initialize
+    createBoard();
+</script>
+{% endblock %}

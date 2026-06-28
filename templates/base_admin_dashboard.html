@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Docipher Admin Panel{% endblock %}</title>
+    <!-- Tailwind CSS (via CDN for simplicity, replace with build process in production) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: '#0ea5e9', // Sky Blue
+                        secondary: '#10b981', // Emerald
+                        accent: '#3b82f6', // Blue
+                        darkbg: '#0f172a', // Slate 900
+                        cardbg: '#1e293b', // Slate 800
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #f8fafc; }
+        .glass-panel { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.05); }
+        .nav-item { transition: all 0.2s ease; border-left: 3px solid transparent; }
+        .nav-item:hover { background: rgba(14, 165, 233, 0.1); border-left-color: #0ea5e9; color: #0ea5e9; }
+        .nav-item.active { background: rgba(14, 165, 233, 0.15); border-left-color: #0ea5e9; color: #0ea5e9; font-weight: 600; }
+    </style>
+</head>
+<body class="bg-darkbg text-slate-100 flex h-screen overflow-hidden">
+
+    <!-- Sidebar -->
+    <aside id="adminSidebar" class="w-64 glass-panel border-r border-slate-700/50 flex flex-col h-full z-30 fixed inset-y-0 left-0 transform -translate-x-full md:relative md:translate-x-0 transition duration-300 ease-in-out bg-darkbg md:bg-transparent">
+        <div class="p-6 border-b border-slate-700/50 flex items-center justify-between">
+            <a href="{% url 'custom_admin' %}" class="text-2xl font-bold flex items-center gap-3 text-white">
+                <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg shadow-primary/30">
+                    <i class="fas fa-user-shield text-white text-xl"></i>
+                </div>
+                <span class="tracking-tight">Admin<span class="text-primary">Panel</span></span>
+            </a>
+            <button onclick="toggleSidebar()" class="md:hidden text-slate-400 hover:text-white">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+
+        <nav class="flex-1 overflow-y-auto py-4 space-y-1">
+            <a href="{% url 'custom_admin' %}" class="nav-item flex items-center gap-3 px-6 py-3 {% if request.path == '/admin/' %}active{% endif %} text-slate-400">
+                <i class="fas fa-chart-line w-5 text-center"></i> <span>Dashboard Overview</span>
+            </a>
+            <div class="px-6 mt-6 mb-2 text-xs font-semibold text-slate-500 uppercase tracking-wider">Management</div>
+            <a href="{% url 'admin_users' %}" class="nav-item flex items-center gap-3 px-6 py-3 {% if request.path == '/admin/users/' %}active{% endif %} text-slate-400">
+                <i class="fas fa-users w-5 text-center"></i> <span>Users</span>
+            </a>
+            <a href="{% url 'admin_summaries' %}" class="nav-item flex items-center gap-3 px-6 py-3 {% if request.path == '/admin/summaries/' %}active{% endif %} text-slate-400">
+                <i class="fas fa-file-medical-alt w-5 text-center"></i> <span>Summaries</span>
+            </a>
+            <a href="{% url 'admin_reminders' %}" class="nav-item flex items-center gap-3 px-6 py-3 {% if request.path == '/admin/reminders/' %}active{% endif %} text-slate-400">
+                <i class="fas fa-bell w-5 text-center"></i> <span>Reminders</span>
+            </a>
+            <div class="px-6 mt-6 mb-2 text-xs font-semibold text-slate-500 uppercase tracking-wider">System</div>
+            <a href="{% url 'admin_settings' %}" class="nav-item flex items-center gap-3 px-6 py-3 {% if request.path == '/admin/settings/' %}active{% endif %} text-slate-400">
+                <i class="fas fa-cog w-5 text-center"></i> <span>Settings</span>
+            </a>
+        </nav>
+
+        <div class="p-4 border-t border-slate-700/50">
+            <a href="{% url 'admin_logout' %}" class="flex items-center gap-3 px-4 py-2 rounded-lg text-red-400 hover:bg-red-500/10 transition w-full">
+                <i class="fas fa-sign-out-alt"></i> <span>Sign Out</span>
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col h-full overflow-hidden relative">
+        <!-- Topbar -->
+        <header class="h-16 glass-panel border-b border-slate-700/50 flex items-center justify-between px-6 z-10 relative">
+            <div class="flex items-center gap-4">
+                <button onclick="toggleSidebar()" class="md:hidden text-slate-400 hover:text-white">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+                <div class="text-slate-300 font-medium hidden sm:block">
+                    <i class="fas fa-clock text-primary mr-2"></i> <span id="admin-time"></span>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-4">
+                <a href="{% url 'dashboard' %}" class="px-4 py-2 rounded-lg bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 transition text-sm flex items-center gap-2">
+                    <i class="fas fa-external-link-alt"></i> View Site
+                </a>
+                <div class="w-10 h-10 rounded-full bg-slate-800 border-2 border-primary flex items-center justify-center overflow-hidden">
+                    <i class="fas fa-user text-primary"></i>
+                </div>
+            </div>
+        </header>
+
+        <!-- Page Content -->
+        <div class="flex-1 overflow-y-auto p-6 lg:p-8 bg-darkbg relative">
+            <!-- Decorative background elements -->
+            <div class="absolute top-[-20%] right-[-10%] w-[500px] h-[500px] rounded-full bg-primary/5 blur-[100px] pointer-events-none"></div>
+            <div class="absolute bottom-[-20%] left-[-10%] w-[400px] h-[400px] rounded-full bg-accent/5 blur-[100px] pointer-events-none"></div>
+            
+            <div class="relative z-10">
+                {% block content %}{% endblock %}
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Simple clock
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('admin-time').innerText = now.toLocaleString();
+        }
+        setInterval(updateTime, 1000);
+        updateTime();
+
+        // Mobile Sidebar Toggle
+        function toggleSidebar() {
+            const sidebar = document.getElementById('adminSidebar');
+            sidebar.classList.toggle('-translate-x-full');
+        }
+    </script>
+</body>
+</html>

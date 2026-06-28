@@ -16,6 +16,9 @@ class Reminder(models.Model):
     dosage = models.CharField(max_length=50, blank=True, help_text="e.g., '500mg', '1 tablet'")
     reminder_time = models.TimeField()
     is_active = models.BooleanField(default=True)
+    taken_today = models.BooleanField(default=False)
+    last_sent = models.DateTimeField(null=True, blank=True)
+    last_reset_date = models.DateField(null=True, blank=True)
 
     def __str__(self):
         return f"'{self.medicine_name}' reminder for {self.user.username}"
@@ -51,6 +54,14 @@ class PatientProfile(models.Model):
     dietary_notes = models.TextField("Dietary Notes", blank=True)
     emergency_contact_name = models.CharField("Emergency Contact Name", max_length=100, blank=True)
     emergency_contact_phone = models.CharField("Emergency Contact Phone", max_length=20, blank=True)
+    
+    # Gamification
+    points = models.IntegerField(default=0)
+    level = models.IntegerField(default=1)
+    
+    # Freemium Pricing
+    is_premium = models.BooleanField(default=False)
+    ai_consultations_used = models.IntegerField(default=0)
 
     def __str__(self):
         return f"Profile for {self.user.username}"

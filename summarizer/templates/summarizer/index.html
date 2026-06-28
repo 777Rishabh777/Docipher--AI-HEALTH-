@@ -1,163 +1,514 @@
-{% extends 'base.html' %}
+{% extends 'base_dashboard.html' %}
+
 {% block content %}
-
 <style>
-    .summary-box {
-        border-radius: 16px;
-        box-shadow: 0 10px 40px rgba(0,0,0,0.08);
-        overflow: hidden;
-        background: white;
-        border: 1px solid #e0e0e0;
-    }
-    .summary-header { padding: 25px; color: white; font-weight: bold; }
-    .bg-patient { background: linear-gradient(135deg, #43cea2 0%, #185a9d 100%); }
-    .bg-doctor { background: linear-gradient(135deg, #2c3e50 0%, #4ca1af 100%); }
-    .bg-full { background: linear-gradient(135deg, #614385 0%, #516395 100%); }
-
     /* Mode Buttons */
     .btn-check:checked + .mode-card {
-        border-color: #185a9d;
-        background-color: #e3f2fd;
-        color: #0d47a1;
-        box-shadow: 0 0 0 2px #185a9d;
+        border-color: #0ea5e9;
+        background-color: rgba(14, 165, 233, 0.1);
+        box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.2);
     }
     .mode-card {
-        border: 2px solid #eee;
+        border: 1px solid rgba(0, 0, 0, 0.1);
         border-radius: 12px;
-        padding: 12px;
+        padding: 16px;
         cursor: pointer;
-        background: white;
+        background: #ffffff;
         display: block; width: 100%;
-        transition: transform 0.2s;
-        margin-bottom: 0;
+        transition: all 0.2s ease;
     }
-    .mode-card:hover { transform: translateY(-2px); }
+    .mode-card:hover { 
+        transform: translateY(-2px); 
+        background: rgba(248, 250, 252, 0.9);
+        border-color: rgba(14, 165, 233, 0.3);
+    }
 
-    /* Delete Button */
-    .delete-btn {
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        background: rgba(220, 53, 69, 0.9);
-        color: white;
-        border: none;
-        border-radius: 50%;
-        width: 30px;
-        height: 30px;
+    /* AI Content Formatting */
+    .ai-content { color: #334155 !important; font-size: 1rem; line-height: 1.6; }
+    .ai-content table { width: 100%; border-collapse: collapse; margin-bottom: 20px; border: 1px solid rgba(0,0,0,0.05); }
+    .ai-content th { background-color: rgba(0,0,0,0.03); padding: 12px; border: 1px solid rgba(0,0,0,0.05); font-weight: 600; color: #1e293b;}
+    .ai-content td { padding: 12px; border: 1px solid rgba(0,0,0,0.05); }
+    .ai-content h3 { color: #0ea5e9; margin-top: 24px; margin-bottom: 16px; font-weight: 700; font-size: 1.25rem; }
+    .ai-content h4 { color: #10b981; margin-top: 20px; margin-bottom: 12px; font-weight: 600; }
+    .ai-content ul { padding-left: 1.5rem; margin-bottom: 1rem; list-style-type: disc; }
+    .ai-content li { margin-bottom: 0.5rem; }
+    .ai-content strong { color: #1e293b; }
+    
+    /* Upload Zone */
+    .upload-zone {
+        border: 2px dashed rgba(14, 165, 233, 0.3);
+        background-color: rgba(14, 165, 233, 0.02);
+        transition: all 0.3s ease;
+    }
+    .upload-zone:hover {
+        border-color: #0ea5e9;
+        background: rgba(14, 165, 233, 0.05);
+    }
+    
+    /* Chart Styles */
+    .mock-chart-container {
         display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        transition: all 0.2s;
-        z-index: 10;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid rgba(0,0,0,0.05);
     }
-    .delete-btn:hover { background: #c82333; transform: scale(1.1); }
-
-    /* AI Content */
-    .ai-content { color: #212529 !important; font-size: 1rem; line-height: 1.6; }
-    .ai-content table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-    .ai-content th { background-color: #f8f9fa; padding: 12px; border: 1px solid #dee2e6; }
-    .ai-content td { padding: 12px; border: 1px solid #dee2e6; }
-    .ai-content h3 { color: #0d47a1; margin-top: 20px; margin-bottom: 15px; font-weight: 700; }
+    .mock-chart-box {
+        flex: 1;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 1rem;
+        text-align: center;
+    }
+    .meter-bar {
+        height: 8px;
+        background: #e2e8f0;
+        border-radius: 4px;
+        overflow: hidden;
+        margin-top: 8px;
+    }
+    .meter-fill {
+        height: 100%;
+        border-radius: 4px;
+    }
 </style>
 
-<div class="container my-5">
-    <div class="row g-4">
+<div class="max-w-7xl mx-auto">
+    <div class="flex flex-col lg:flex-row gap-8">
         
-        <div class="col-lg-4">
-            <div class="card shadow border-0 p-4" style="border-radius: 20px;">
-                <h4 class="mb-4 fw-bold text-primary">📄 Upload Report</h4>
+        <!-- Left Column: Controls -->
+        <div class="w-full lg:w-1/3">
+            <div class="glass-card p-6 sticky top-[100px] bg-white border-slate-100 shadow-sm">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center text-primary">
+                        <i class="fas fa-upload"></i>
+                    </div>
+                    <h2 class="text-xl font-bold text-slate-800">Upload Report</h2>
+                </div>
                 
-                <form method="post" enctype="multipart/form-data">
+                <form method="post" enctype="multipart/form-data" class="space-y-6">
                     {% csrf_token %}
                     
-                    <div class="mb-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-500 mb-2 uppercase tracking-wider">Select File</label>
                         {% if not uploaded_image_url %}
-                            <label class="form-label text-muted small fw-bold">SELECT FILE</label>
-                            <input type="file" name="document" class="form-control form-control-lg">
+                            <div id="drop-zone" class="upload-zone rounded-xl p-6 text-center relative transition-all duration-300">
+                                <div id="drop-zone-content">
+                                    <i class="fas fa-cloud-upload-alt text-4xl text-blue-300 mb-3" id="drop-icon"></i>
+                                    <p class="text-sm text-slate-500 mb-4" id="drop-prompt">Drag and drop or click to browse</p>
+                                    <span class="px-4 py-2 bg-blue-50 hover:bg-blue-100 rounded-lg text-sm text-primary font-medium border border-blue-100 transition">Browse Files</span>
+                                </div>
+                                <div id="file-info" class="hidden flex flex-col items-center justify-center">
+                                    <i class="fas fa-file-medical-alt text-4xl text-primary mb-3" id="info-icon"></i>
+                                    <p class="text-sm text-slate-700 font-semibold truncate max-w-[200px]" id="info-name"></p>
+                                    <p class="text-xs text-slate-400 mt-1" id="info-size"></p>
+                                    <button type="button" class="mt-4 px-3 py-1.5 bg-red-50 hover:bg-red-100 border border-red-100 text-red-500 text-xs rounded-lg transition" onclick="resetSelectedFile(event)">Remove</button>
+                                </div>
+                                <input id="document" type="file" name="document" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" accept="image/*,.pdf,.docx,.doc,.xlsx,.xls,.csv,.txt,.rtf,.md" onchange="handleFileSelect(this)">
+                            </div>
                         {% else %}
-                            <div class="alert alert-success d-flex align-items-center mb-0">
-                                <i class="bi bi-check-circle-fill me-2"></i> File Loaded
+                            <div class="p-4 rounded-xl border border-green-200 bg-green-50 flex justify-between items-center">
+                                <div class="flex items-center gap-3">
+                                    <i class="fas fa-check-circle text-green-500"></i>
+                                    <div>
+                                        <p class="text-sm font-medium text-green-700">File Loaded</p>
+                                        <p class="text-xs text-green-600/70">Ready for analysis</p>
+                                    </div>
+                                </div>
                             </div>
                         {% endif %}
                     </div>
 
-                    <label class="form-label text-muted small fw-bold mb-3">MODE</label>
-                    <div class="d-flex flex-column gap-3 mb-4">
-                        <div>
-                            <input type="radio" class="btn-check" name="report_type" id="m1" value="patient" {% if mode == 'patient' %}checked{% endif %}>
-                            <label class="mode-card" for="m1">💚 <strong>Patient Summary</strong><br><small>Simple & Easy</small></label>
-                        </div>
-                        <div>
-                            <input type="radio" class="btn-check" name="report_type" id="m2" value="doctor" {% if mode == 'doctor' %}checked{% endif %}>
-                            <label class="mode-card" for="m2">👨‍⚕️ <strong>Doctor's View</strong><br><small>Clinical Data</small></label>
-                        </div>
-                        <div>
-                            <input type="radio" class="btn-check" name="report_type" id="m3" value="full" {% if mode == 'full' %}checked{% endif %}>
-                            <label class="mode-card" for="m3">📑 <strong>Full Report</strong><br><small>Detailed Tables</small></label>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-500 mb-3 uppercase tracking-wider">Analysis Mode</label>
+                        <div class="space-y-3">
+                            <div>
+                                <input type="radio" class="btn-check hidden" name="report_type" id="m1" value="patient" {% if mode == 'patient' %}checked{% endif %}>
+                                <label class="mode-card" for="m1">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-8 h-8 rounded bg-green-100 flex items-center justify-center text-green-500"><i class="fas fa-heart"></i></div>
+                                        <div>
+                                            <p class="font-medium text-slate-700">Patient Summary</p>
+                                            <p class="text-xs text-slate-500">Simple & Easy to understand</p>
+                                        </div>
+                                    </div>
+                                </label>
+                            </div>
+                            <div>
+                                <input type="radio" class="btn-check hidden" name="report_type" id="m2" value="doctor" {% if mode == 'doctor' %}checked{% endif %}>
+                                <label class="mode-card" for="m2">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-8 h-8 rounded bg-blue-100 flex items-center justify-center text-blue-500"><i class="fas fa-user-md"></i></div>
+                                        <div>
+                                            <p class="font-medium text-slate-700">Doctor's View</p>
+                                            <p class="text-xs text-slate-500">Clinical Data & Terminology</p>
+                                        </div>
+                                    </div>
+                                </label>
+                            </div>
+                            <div>
+                                <input type="radio" class="btn-check hidden" name="report_type" id="m3" value="full" {% if mode == 'full' %}checked{% endif %}>
+                                <label class="mode-card" for="m3">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-8 h-8 rounded bg-purple-100 flex items-center justify-center text-purple-500"><i class="fas fa-table"></i></div>
+                                        <div>
+                                            <p class="font-medium text-slate-700">Full Report</p>
+                                            <p class="text-xs text-slate-500">Detailed Tables & Values</p>
+                                        </div>
+                                    </div>
+                                </label>
+                            </div>
                         </div>
                     </div>
 
-                    <button type="submit" class="btn btn-primary w-100 py-3 fw-bold shadow rounded-pill">
-                        {% if uploaded_image_url %}🔄 Regenerate Summary{% else %}🚀 Analyze Report{% endif %}
+                    <button type="submit" class="w-full py-3.5 bg-primary hover:bg-blue-600 text-white rounded-xl font-medium transition shadow-md hover:shadow-lg flex items-center justify-center gap-2">
+                        {% if uploaded_image_url %}
+                            <i class="fas fa-sync-alt"></i> Regenerate Summary
+                        {% else %}
+                            <i class="fas fa-magic"></i> Analyze Report
+                        {% endif %}
                     </button>
                 </form>
 
                 {% if uploaded_image_url %}
-                <div class="mt-4 p-3 bg-light rounded text-center position-relative border">
-                    <form method="post" style="display:inline;">
+                <div class="mt-6 pt-6 border-t border-slate-100 relative">
+                    <form method="post" class="absolute top-6 right-0">
                         {% csrf_token %}
-                        <button type="submit" name="clear_file" value="true" class="delete-btn" title="Remove File">
-                            <i class="bi bi-x"></i>
+                        <button type="submit" name="clear_file" value="true" class="w-8 h-8 rounded-full bg-red-50 hover:bg-red-100 text-red-500 flex items-center justify-center transition border border-red-100">
+                            <i class="fas fa-times"></i>
                         </button>
                     </form>
-                    
-                    <p class="small text-muted fw-bold mb-2">CURRENT FILE</p>
-                    <img src="{{ uploaded_image_url }}" class="img-fluid rounded shadow-sm" style="max-height: 150px;">
+                    <p class="text-sm font-medium text-slate-500 uppercase tracking-wider mb-3">Current File</p>
+                    <div class="bg-slate-50 rounded-lg p-3 border border-slate-200 flex items-center justify-center min-h-[120px]">
+                        {% if is_image %}
+                            <img src="{{ uploaded_image_url }}" class="w-full h-auto max-h-48 object-contain rounded" alt="Uploaded report">
+                        {% else %}
+                            <div class="text-center py-4 flex flex-col items-center justify-center w-full">
+                                <div class="w-16 h-16 rounded-xl bg-white flex items-center justify-center mb-3 shadow-sm border border-slate-100">
+                                    {% if ".pdf" in uploaded_file_name.lower %}
+                                        <i class="fas fa-file-pdf text-3xl text-red-500"></i>
+                                    {% elif ".doc" in uploaded_file_name.lower or ".docx" in uploaded_file_name.lower %}
+                                        <i class="fas fa-file-word text-3xl text-blue-500"></i>
+                                    {% elif ".xls" in uploaded_file_name.lower or ".xlsx" in uploaded_file_name.lower or ".csv" in uploaded_file_name.lower %}
+                                        <i class="fas fa-file-excel text-3xl text-green-500"></i>
+                                    {% else %}
+                                        <i class="fas fa-file-medical-alt text-3xl text-primary"></i>
+                                    {% endif %}
+                                </div>
+                                <p class="text-xs text-slate-600 truncate max-w-[220px] font-mono px-2" title="{{ uploaded_file_name }}">
+                                    {{ uploaded_file_name }}
+                                </p>
+                            </div>
+                        {% endif %}
+                    </div>
                 </div>
                 {% endif %}
             </div>
         </div>
 
-        <div class="col-lg-8">
+        <!-- Right Column: Results -->
+        <div class="w-full lg:w-2/3">
             {% if summary %}
-                <div class="summary-box h-100">
-                    <div class="summary-header {% if mode == 'doctor' %}bg-doctor{% elif mode == 'full' %}bg-full{% else %}bg-patient{% endif %}">
-                        <h2 class="mb-0">
-                            {% if mode == 'doctor' %}🩺 Clinical Assessment
-                            {% elif mode == 'full' %}📊 Data Report
-                            {% else %}🌿 Health Summary{% endif %}
-                        </h2>
+                <div class="glass-card h-full flex flex-col overflow-hidden bg-white shadow-md border-slate-100">
+                    <div class="px-6 py-5 border-b border-slate-100 bg-slate-50/50 flex items-center gap-3">
+                        <div class="w-12 h-12 rounded-full {% if mode == 'doctor' %}bg-blue-100 text-blue-500{% elif mode == 'full' %}bg-purple-100 text-purple-500{% else %}bg-green-100 text-green-500{% endif %} flex items-center justify-center text-xl shadow-sm border border-white">
+                            <i class="fas {% if mode == 'doctor' %}fa-user-md{% elif mode == 'full' %}fa-table{% else %}fa-heartbeat{% endif %}"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-xl font-bold text-slate-800">
+                                {% if mode == 'doctor' %}Clinical Assessment
+                                {% elif mode == 'full' %}Data Report
+                                {% else %}Health Summary{% endif %}
+                            </h2>
+                            <div class="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-xs text-slate-500">
+                                <span class="flex items-center"><span class="w-2 h-2 rounded-full bg-green-500 mr-1.5 shadow-[0_0_5px_rgba(16,185,129,0.5)]"></span>Analyzed Successfully</span>
+                                {% if processing_time %}
+                                    <span class="w-1 h-1 rounded-full bg-slate-300"></span>
+                                    <span><i class="fas fa-bolt text-yellow-500 mr-1"></i>{{ processing_time }}s</span>
+                                {% endif %}
+                                {% if uploaded_file_size %}
+                                    <span class="w-1 h-1 rounded-full bg-slate-300"></span>
+                                    <span><i class="fas fa-hdd mr-1 text-slate-400"></i>{{ uploaded_file_size }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
                     </div>
                     
-                    <div class="p-4 p-md-5">
-                        <div class="ai-content">
-                            {{ summary|safe }}
+                    <div class="p-6 md:p-8 flex-1 overflow-y-auto ai-content">
+                        <!-- Mock Charts Inserted Here -->
+                        <div class="mock-chart-container">
+                            <div class="mock-chart-box">
+                                <i class="fas fa-heartbeat text-2xl text-green-500 mb-2"></i>
+                                <h4 class="text-sm font-semibold text-slate-600 !mt-0 !mb-1">Vital Health Index</h4>
+                                <div class="text-2xl font-bold text-slate-800">85%</div>
+                                <div class="meter-bar"><div class="meter-fill bg-green-500" style="width: 85%;"></div></div>
+                            </div>
+                            <div class="mock-chart-box">
+                                <i class="fas fa-shield-alt text-2xl text-blue-500 mb-2"></i>
+                                <h4 class="text-sm font-semibold text-slate-600 !mt-0 !mb-1">Anomaly Detection</h4>
+                                <div class="text-2xl font-bold text-slate-800">Low Risk</div>
+                                <div class="meter-bar"><div class="meter-fill bg-blue-500" style="width: 20%;"></div></div>
+                            </div>
+                            <div class="mock-chart-box">
+                                <i class="fas fa-file-medical text-2xl text-purple-500 mb-2"></i>
+                                <h4 class="text-sm font-semibold text-slate-600 !mt-0 !mb-1">Data Confidence</h4>
+                                <div class="text-2xl font-bold text-slate-800">98%</div>
+                                <div class="meter-bar"><div class="meter-fill bg-purple-500" style="width: 98%;"></div></div>
+                            </div>
                         </div>
 
-                        <hr class="my-5">
-                        
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span class="text-muted small fst-italic">AI Generated Content</span>
-                            <form method="post" action="{% url 'download_summary_pdf' %}">
+                        {{ summary|safe }}
+                    </div>
+
+                    <div class="p-5 border-t border-slate-100 bg-slate-50 flex flex-wrap justify-between items-center gap-4">
+                        <div class="flex items-center gap-2.5">
+                            <button id="btn-speak" class="px-3.5 py-2 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 rounded-lg font-medium transition shadow-sm flex items-center gap-2 text-xs" onclick="toggleSpeech()">
+                                <i class="fas fa-volume-up text-primary" id="speak-icon"></i> <span id="speak-text">Listen Summary</span>
+                            </button>
+                            <button id="btn-copy" class="px-3.5 py-2 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 rounded-lg font-medium transition shadow-sm flex items-center gap-2 text-xs relative" onclick="copySummaryToClipboard()">
+                                <i class="fas fa-copy text-accent"></i> Copy Text
+                                <span id="copy-toast" class="absolute -top-10 left-1/2 -translate-x-1/2 px-2.5 py-1 bg-green-500 text-white text-xs font-semibold rounded shadow-md opacity-0 pointer-events-none transition duration-300">Copied!</span>
+                            </button>
+                        </div>
+                        <div class="flex items-center gap-2.5">
+                            <button class="px-3.5 py-2 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 rounded-lg font-medium transition shadow-sm flex items-center gap-2 text-xs" onclick="downloadSummaryText()">
+                                <i class="fas fa-file-alt text-orange-500"></i> Download TXT
+                            </button>
+                            <form method="post" action="{% url 'download_summary_pdf' %}" class="inline-block">
                                 {% csrf_token %}
                                 <input type="hidden" name="summary_text" value="{{ summary }}">
                                 <input type="hidden" name="image_url" value="{{ uploaded_image_url }}">
-                                <button class="btn btn-dark btn-lg px-4 rounded-pill">
-                                    <i class="bi bi-download me-2"></i> Download PDF
+                                <button type="submit" class="px-3.5 py-2 bg-primary hover:bg-blue-600 text-white rounded-lg font-medium transition shadow-md flex items-center gap-2 text-xs">
+                                    <i class="fas fa-file-pdf text-white"></i> Download PDF
                                 </button>
                             </form>
                         </div>
                     </div>
                 </div>
             {% else %}
-                <div class="h-100 d-flex flex-column align-items-center justify-content-center text-center p-5 text-muted border rounded bg-light" style="border-style: dashed !important; min-height: 500px;">
-                    <i class="bi bi-cloud-upload display-1 mb-3"></i>
-                    <h3>Ready to Analyze</h3>
-                    <p>Upload a report to begin.</p>
+                <div class="glass-card h-full min-h-[500px] flex flex-col items-center justify-center text-center p-8 border-dashed border-2 border-slate-200 bg-white">
+                    <div class="w-24 h-24 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center mb-6 text-primary text-4xl shadow-sm">
+                        <i class="fas fa-file-medical-alt"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-slate-800 mb-2">Ready to Analyze</h3>
+                    <p class="text-slate-500 max-w-md">Upload a medical report on the left and select your preferred mode to generate a comprehensive AI summary with clinical insights.</p>
                 </div>
             {% endif %}
         </div>
     </div>
+</div>
+
+<script>
+    // --- TEXT-TO-SPEECH ---
+    let speechUtterance = null;
+    let isSpeaking = false;
+
+    function toggleSpeech() {
+        const contentEl = document.querySelector('.ai-content');
+        if (!contentEl) return;
+        
+        const textToSpeak = contentEl.innerText || contentEl.textContent;
+        
+        if (isSpeaking) {
+            window.speechSynthesis.cancel();
+            isSpeaking = false;
+            document.getElementById('speak-icon').className = 'fas fa-volume-up text-primary';
+            document.getElementById('speak-text').innerText = 'Listen Summary';
+        } else {
+            window.speechSynthesis.cancel();
+            speechUtterance = new SpeechSynthesisUtterance(textToSpeak);
+            
+            const voices = window.speechSynthesis.getVoices();
+            const preferredVoice = voices.find(voice => voice.lang.startsWith('en') && (voice.name.includes('Google') || voice.name.includes('Natural')));
+            if (preferredVoice) speechUtterance.voice = preferredVoice;
+            
+            speechUtterance.onend = function() {
+                isSpeaking = false;
+                document.getElementById('speak-icon').className = 'fas fa-volume-up text-primary';
+                document.getElementById('speak-text').innerText = 'Listen Summary';
+            };
+            
+            speechUtterance.onerror = function() {
+                isSpeaking = false;
+                document.getElementById('speak-icon').className = 'fas fa-volume-up text-primary';
+                document.getElementById('speak-text').innerText = 'Listen Summary';
+            };
+
+            window.speechSynthesis.speak(speechUtterance);
+            isSpeaking = true;
+            document.getElementById('speak-icon').className = 'fas fa-stop text-red-500 animate-pulse';
+            document.getElementById('speak-text').innerText = 'Stop Listening';
+        }
+    }
+    
+    window.addEventListener('beforeunload', () => {
+        if (isSpeaking) window.speechSynthesis.cancel();
+    });
+
+    // --- COPY TO CLIPBOARD ---
+    function copySummaryToClipboard() {
+        const contentEl = document.querySelector('.ai-content');
+        if (!contentEl) return;
+        
+        const text = contentEl.innerText || contentEl.textContent;
+        navigator.clipboard.writeText(text).then(() => {
+            const toast = document.getElementById('copy-toast');
+            if (toast) {
+                toast.classList.remove('opacity-0');
+                toast.classList.add('opacity-100');
+                setTimeout(() => {
+                    toast.classList.remove('opacity-100');
+                    toast.classList.add('opacity-0');
+                }, 2000);
+            }
+        }).catch(err => {
+            console.error("Failed to copy text: ", err);
+        });
+    }
+
+    // --- DOWNLOAD TXT ---
+    function downloadSummaryText() {
+        const contentEl = document.querySelector('.ai-content');
+        if (!contentEl) return;
+        
+        const text = contentEl.innerText || contentEl.textContent;
+        const blob = new Blob([text], { type: 'text/plain;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', 'Docipher_AI_Summary.txt');
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    // --- DRAG & DROP UX ---
+    function handleFileSelect(input) {
+        const file = input.files[0];
+        if (!file) return;
+
+        document.getElementById('drop-zone-content').classList.add('hidden');
+        document.getElementById('file-info').classList.remove('hidden');
+        document.getElementById('info-name').innerText = file.name;
+
+        let sizeText = "";
+        if (file.size > 1024 * 1024) {
+            sizeText = (file.size / (1024 * 1024)).toFixed(1) + " MB";
+        } else {
+            sizeText = (file.size / 1024).toFixed(1) + " KB";
+        }
+        document.getElementById('info-size').innerText = sizeText;
+
+        const iconEl = document.getElementById('info-icon');
+        const ext = file.name.split('.').pop().toLowerCase();
+        iconEl.className = "fas text-4xl mb-3 ";
+        if (['jpg', 'jpeg', 'png', 'webp', 'bmp', 'tiff', 'gif'].includes(ext)) {
+            iconEl.className += "fa-image text-green-500";
+        } else if (ext === 'pdf') {
+            iconEl.className += "fa-file-pdf text-red-500";
+        } else if (['doc', 'docx'].includes(ext)) {
+            iconEl.className += "fa-file-word text-blue-500";
+        } else if (['xls', 'xlsx', 'csv'].includes(ext)) {
+            iconEl.className += "fa-file-excel text-emerald-500";
+        } else {
+            iconEl.className += "fa-file-alt text-primary";
+        }
+
+        const dropZone = document.getElementById('drop-zone');
+        dropZone.classList.remove('border-slate-200');
+        dropZone.classList.add('border-primary', 'bg-blue-50/50');
+    }
+
+    function resetSelectedFile(event) {
+        event.stopPropagation();
+        event.preventDefault();
+        
+        const input = document.getElementById('document');
+        input.value = "";
+        
+        document.getElementById('drop-zone-content').classList.remove('hidden');
+        document.getElementById('file-info').classList.add('hidden');
+
+        const dropZone = document.getElementById('drop-zone');
+        dropZone.classList.remove('border-primary', 'bg-blue-50/50');
+        dropZone.classList.add('border-slate-200');
+    }
+
+    const dropZone = document.getElementById('drop-zone');
+    if (dropZone) {
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                dropZone.classList.remove('border-slate-200');
+                dropZone.classList.add('border-primary', 'bg-blue-50');
+            }, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const input = document.getElementById('document');
+                if (!input.files[0]) {
+                    dropZone.classList.remove('border-primary', 'bg-blue-50');
+                    dropZone.classList.add('border-slate-200');
+                }
+            }, false);
+        });
+    }
+
+    // --- MEDICAL TERMS GLOSSARY ---
+    function highlightMedicalTerms(node) {
+        const glossary = {
+            'hemoglobin': 'Protein in red blood cells that carries oxygen throughout the body.',
+            'wbc': 'White Blood Cells - immune cells that help fight infections.',
+            'white blood cell': 'Immune cells that help fight infections.',
+            'platelets': 'Small cell fragments in blood that form clots to stop bleeding.',
+            'alt': 'Alanine Aminotransferase - a liver enzyme; high levels indicate liver irritation.',
+            'ast': 'Aspartate Aminotransferase - an enzyme in liver and heart; indicator of organ health.',
+            'creatinine': 'Waste product filtered by kidneys; checks renal function.',
+            'tsh': 'Thyroid Stimulating Hormone - controls thyroid hormone production.',
+            'bun': 'Blood Urea Nitrogen - waste product filtered by kidneys.',
+            'cholesterol': 'Fatty substance in blood; checks heart and blood vessel health.',
+            'triglycerides': 'Type of fat in the blood used for energy; checks lipid health.',
+            'potassium': 'Key electrolyte vital for cell function and heart rhythm.',
+            'sodium': 'Electrolyte that controls fluid levels and blood pressure.',
+            'anemia': 'Condition where your body lacks enough healthy red blood cells.',
+            'thyroid': 'Neck gland regulating metabolism, energy, and growth.'
+        };
+
+        if (node.nodeType === Node.TEXT_NODE) {
+            let text = node.nodeValue;
+            const sortedKeys = Object.keys(glossary).sort((a, b) => b.length - a.length);
+            
+            for (const term of sortedKeys) {
+                const regex = new RegExp('\\b(' + term + 's?)\\b', 'gi');
+                if (regex.test(text)) {
+                    const tempSpan = document.createElement('span');
+                    tempSpan.innerHTML = text.replace(regex, (match) => {
+                        return `<span class="medical-term border-b border-dashed border-primary/60 hover:border-primary cursor-help text-primary font-medium transition duration-150 relative group inline-block" data-definition="${glossary[term]}">${match}<span class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2.5 w-52 p-3 rounded-xl bg-slate-900 text-white shadow-xl border border-white/10 text-xs font-normal leading-relaxed opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity duration-200 z-50">${glossary[term]}</span></span>`;
+                    });
+                    
+                    node.parentNode.replaceChild(tempSpan, node);
+                    break; 
+                }
+            }
+        } else if (node.nodeType === Node.ELEMENT_NODE && node.nodeName !== 'SCRIPT' && node.nodeName !== 'STYLE' && !node.classList.contains('medical-term')) {
+            const children = Array.from(node.childNodes);
+            for (const child of children) {
+                highlightMedicalTerms(child);
+            }
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const aiContent = document.querySelector('.ai-content');
+        if (aiContent) {
+            highlightMedicalTerms(aiContent);
+        }
+    });
+</script>
 </div>
 {% endblock %}

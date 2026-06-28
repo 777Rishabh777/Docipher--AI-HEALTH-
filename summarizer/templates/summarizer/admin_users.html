@@ -1,0 +1,62 @@
+{% extends 'base_admin_dashboard.html' %}
+
+{% block title %}User Management | Admin Panel{% endblock %}
+
+{% block content %}
+<div class="mb-8 flex items-center justify-between">
+    <div>
+        <h1 class="text-3xl font-bold text-white flex items-center gap-3">
+            <i class="fas fa-users text-primary"></i> User Management
+        </h1>
+        <p class="text-slate-400 mt-2">Manage all registered patients and their subscription tiers.</p>
+    </div>
+</div>
+
+<div class="glass-panel rounded-xl overflow-hidden border border-slate-700/50">
+    <div class="overflow-x-auto">
+        <table class="w-full text-sm text-left text-slate-300">
+            <thead class="text-xs text-slate-400 uppercase bg-slate-800/80">
+                <tr>
+                    <th class="px-6 py-4">Username</th>
+                    <th class="px-6 py-4">Email</th>
+                    <th class="px-6 py-4">Date Joined</th>
+                    <th class="px-6 py-4">Staff Status</th>
+                    <th class="px-6 py-4">Subscription</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for u in users %}
+                <tr class="border-b border-slate-700/50 hover:bg-slate-800/50 transition">
+                    <td class="px-6 py-4 font-medium text-white">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-primary font-bold">
+                                {{ u.username|make_list|first|upper }}
+                            </div>
+                            {{ u.username }}
+                        </div>
+                    </td>
+                    <td class="px-6 py-4">{{ u.email|default:"Not provided" }}</td>
+                    <td class="px-6 py-4">{{ u.date_joined|date:"M d, Y H:i" }}</td>
+                    <td class="px-6 py-4">
+                        {% if u.is_staff %}
+                            <span class="text-red-400"><i class="fas fa-shield-alt"></i> Admin</span>
+                        {% else %}
+                            <span class="text-slate-500">User</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4">
+                        {% if u.patientprofile.is_premium %}
+                            <span class="px-2.5 py-1 rounded-full bg-yellow-500/20 text-yellow-400 text-xs font-bold border border-yellow-500/30">PREMIUM</span>
+                        {% else %}
+                            <span class="px-2.5 py-1 rounded-full bg-slate-700 text-slate-300 text-xs font-bold">FREE</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5" class="px-6 py-8 text-center text-slate-500">No users found.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

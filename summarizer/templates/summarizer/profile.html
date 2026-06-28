@@ -1,243 +1,271 @@
-{% extends 'base.html' %}
+{% extends 'base_dashboard.html' %}
 {% load static %}
 
 {% block content %}
 <style>
-    .profile-main-container {
-        max-width: 1100px;
-        margin: 0 auto;
-        padding: 2.5rem 1rem 2rem 1rem;
+    /* Custom Modal */
+    .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(4px);
+        z-index: 100;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.3s ease;
     }
-    .profile-sidebar {
-        background: #fff;
-        border-radius: 18px;
-        box-shadow: 0 4px 16px rgba(0,0,0,0.07);
-        padding: 2rem 1.5rem 1.5rem 1.5rem;
-        margin-bottom: 2rem;
+    .modal-overlay.active {
+        display: flex;
+        opacity: 1;
     }
-    .profile-picture {
-        width: 140px;
-        height: 140px;
-        object-fit: cover;
-        border-radius: 50%;
-        border: 4px solid #f1f3f6;
-        margin-bottom: 1rem;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    .modal-content {
+        background: #1a1a2e;
+        border: 1px solid rgba(99, 102, 241, 0.2);
+        border-radius: 1rem;
+        width: 100%;
+        max-width: 800px;
+        max-height: 90vh;
+        overflow-y: auto;
+        transform: scale(0.95);
+        transition: transform 0.3s ease;
+        padding: 2rem;
     }
-    .profile-completion-bar {
-        height: 7px;
-        border-radius: 5px;
+    .modal-overlay.active .modal-content {
+        transform: scale(1);
     }
-    .profile-section-card {
-        background: #fff;
-        border-radius: 18px;
-        box-shadow: 0 4px 16px rgba(0,0,0,0.07);
-        margin-bottom: 2rem;
-        padding: 2rem 1.5rem 1.5rem 1.5rem;
+    
+    /* Form Styles Override */
+    form p { margin-bottom: 1.25rem; }
+    form label { display: block; margin-bottom: 0.5rem; font-size: 0.875rem; font-weight: 500; color: #9ca3af; }
+    form input, form select, form textarea {
+        width: 100%; padding: 0.75rem 1rem; background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 0.5rem; color: white;
     }
-    @media (max-width: 991px) {
-        .profile-main-container { padding: 1.5rem 0.5rem; }
-        .profile-sidebar, .profile-section-card { padding: 1.2rem 0.7rem; }
+    form input:focus, form textarea:focus, form select:focus {
+        outline: none; border-color: #6366f1; box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
     }
+    form input[type="file"] { padding: 0.5rem; background: transparent; border: none; }
+    
+    .data-label { font-size: 0.85rem; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.25rem;}
+    .data-value { font-size: 1.05rem; color: #f3f4f6; font-weight: 500; }
 </style>
 
-<div class="profile-main-container">
-    <div class="row g-4">
-        <div class="col-lg-4">
-            <div class="profile-sidebar text-center">
-                {% if user.patientprofile.profile_picture %}
-                    <img src="{{ user.patientprofile.profile_picture.url }}" alt="Profile Picture" class="profile-picture">
-                {% else %}
-                    <img src="{% static 'profile_pics/default.jpg' %}" alt="Default Profile Picture" class="profile-picture">
-                {% endif %}
-                <h4 class="fw-bold mb-1">{{ user.first_name }} {{ user.last_name }}</h4>
-                <div class="text-muted mb-2">@{{ user.username }}</div>
-                <div class="mb-3">
-                    <div class="d-flex align-items-center justify-content-between mb-1">
-                        <span class="small text-muted">Profile Completion</span>
-                        <span class="small fw-semibold">{{ completeness_percentage }}%</span>
-                    </div>
-                    <div class="progress profile-completion-bar">
-                        <div class="progress-bar bg-primary" role="progressbar" style="width: {{ completeness_percentage }}%" aria-label="Profile completeness: {{ completeness_percentage }}%" title="Profile completeness: {{ completeness_percentage }}%"></div>
+<div class="max-w-7xl mx-auto">
+    <div class="flex flex-col lg:flex-row gap-8">
+        
+        <!-- Sidebar: Profile Summary -->
+        <div class="w-full lg:w-1/3">
+            <div class="glass-card p-8 sticky top-6 text-center">
+                <div class="relative inline-block mb-6 group">
+                    <div class="w-36 h-36 rounded-full p-1 bg-slate-700 mx-auto shadow-xl">
+                        {% if user.patientprofile.profile_picture %}
+                            <img src="{{ user.patientprofile.profile_picture.url }}" class="w-full h-full object-cover rounded-full border-4 border-surface" alt="" onerror="this.style.display='none'; document.getElementById('fallback-avatar').style.display='flex';">
+                            <div id="fallback-avatar" class="w-full h-full rounded-full border-4 border-surface bg-slate-800 hidden items-center justify-center text-5xl text-slate-400">
+                                <i class="fas fa-user"></i>
+                            </div>
+                        {% else %}
+                            <div class="w-full h-full rounded-full border-4 border-surface bg-slate-800 flex items-center justify-center text-5xl text-slate-400">
+                                <i class="fas fa-user"></i>
+                            </div>
+                        {% endif %}
                     </div>
                 </div>
-                <div class="d-grid gap-2 mb-3">
-                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editProfileModal"><i class="bi bi-pencil-square me-2"></i>Edit Profile</button>
-                    <a href="{% url 'download_profile_pdf' %}" class="btn btn-outline-danger"><i class="bi bi-file-earmark-pdf me-2"></i>Download PDF</a>
+                
+                <h2 class="text-2xl font-bold text-white mb-1">{{ user.first_name }} {{ user.last_name }}</h2>
+                <p class="text-primary mb-6">@{{ user.username }}</p>
+                
+                <div class="mb-8 text-left">
+                    <div class="flex justify-between items-end mb-2">
+                        <span class="text-sm text-gray-400 font-medium">Profile Completion</span>
+                        <span class="text-sm font-bold {% if completeness_percentage == 100 %}text-green-400{% else %}text-white{% endif %}">{{ completeness_percentage }}%</span>
+                    </div>
+                    <div class="h-2 w-full bg-gray-700 rounded-full overflow-hidden">
+                        <div class="h-full bg-gradient-to-r from-primary to-accent" style="width: {{ completeness_percentage }}%"></div>
+                    </div>
+                    {% if completeness_percentage < 100 %}
+                        <p class="text-xs text-gray-500 mt-2">Complete your profile to unlock all features.</p>
+                    {% endif %}
                 </div>
-                <div class="mt-4">
-                    <h6 class="fw-semibold">Need Help?</h6>
-                    <p class="small text-muted mb-2">Click for a quick tour of your dashboard.</p>
-                    <button class="btn btn-outline-info w-100" type="button" data-bs-toggle="offcanvas" data-bs-target="#tutorialOffcanvas">
-                        <i class="bi bi-question-circle me-2"></i>Show Tutorial
+                
+                <div class="flex flex-col gap-3">
+                    <button onclick="document.getElementById('edit-modal').classList.add('active')" class="w-full py-3 bg-primary hover:bg-indigo-600 text-white rounded-xl font-medium transition shadow-lg shadow-indigo-500/20 flex items-center justify-center gap-2">
+                        <i class="fas fa-edit"></i> Edit Profile
                     </button>
+                    <a href="{% url 'download_profile_pdf' %}" class="w-full py-3 bg-surface border border-gray-700 hover:bg-white/5 text-gray-300 rounded-xl font-medium transition flex items-center justify-center gap-2">
+                        <i class="fas fa-file-pdf text-red-400"></i> Download PDF
+                    </a>
                 </div>
             </div>
         </div>
-        <div class="col-lg-8">
-            {% if messages %}{% for message in messages %}
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    {{ message }} <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close alert" title="Close"></button>
+
+        <!-- Main Content: Details -->
+        <div class="w-full lg:w-2/3 space-y-6">
+            
+            <div class="glass-card p-8">
+                <div class="flex items-center gap-3 mb-6 border-b border-gray-700/50 pb-4">
+                    <div class="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center text-blue-400">
+                        <i class="fas fa-user-circle"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white">Personal Details</h3>
                 </div>
-            {% endfor %}{% endif %}
-            <div class="profile-section-card">
-                <h5 class="card-title text-primary mb-3"><i class="bi bi-person-fill me-2"></i>Personal Details</h5>
-                <div class="row g-3">
-                    <div class="col-sm-6">
-                        <div class="fw-semibold">Full Name</div>
-                        <div class="text-muted">{{ user.first_name }} {{ user.last_name }}</div>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div>
+                        <div class="data-label">Full Name</div>
+                        <div class="data-value">{{ user.first_name }} {{ user.last_name }}</div>
                     </div>
-                    <div class="col-sm-6">
-                        <div class="fw-semibold">Username</div>
-                        <div class="text-muted">{{ user.username }}</div>
+                    <div>
+                        <div class="data-label">Email</div>
+                        <div class="data-value">{{ user.email }}</div>
                     </div>
-                    <div class="col-sm-6">
-                        <div class="fw-semibold">Email</div>
-                        <div class="text-muted">{{ user.email }}</div>
+                    <div>
+                        <div class="data-label">Date of Birth</div>
+                        <div class="data-value">{{ user.patientprofile.date_of_birth|default:"Not set" }}</div>
                     </div>
-                    <div class="col-sm-6">
-                        <div class="fw-semibold">Date of Birth</div>
-                        <div class="text-muted">{{ user.patientprofile.date_of_birth|default:"Not set" }}</div>
+                    <div>
+                        <div class="data-label">Gender</div>
+                        <div class="data-value">{{ user.patientprofile.gender|default:"Not set" }}</div>
                     </div>
-                    <div class="col-sm-6">
-                        <div class="fw-semibold">Gender</div>
-                        <div class="text-muted">{{ user.patientprofile.gender|default:"Not set" }}</div>
-                    </div>
-                    <div class="col-sm-6">
-                        <div class="fw-semibold">Contact Number</div>
-                        <div class="text-muted">{{ user.patientprofile.contact_number|default:"Not set" }}</div>
-                    </div>
-                </div>
-            </div>
-            <div class="profile-section-card">
-                <h5 class="card-title text-primary mb-3"><i class="bi bi-heart-pulse-fill me-2"></i>Medical Vitals</h5>
-                <div class="row g-3">
-                    <div class="col-sm-4">
-                        <div class="fw-semibold">Blood Group</div>
-                        <div class="text-muted">{{ user.patientprofile.blood_group|default:"Not set" }}</div>
-                    </div>
-                    <div class="col-sm-4">
-                        <div class="fw-semibold">Height (cm)</div>
-                        <div class="text-muted">{{ user.patientprofile.height|default:"Not set" }}</div>
-                    </div>
-                    <div class="col-sm-4">
-                        <div class="fw-semibold">Weight (kg)</div>
-                        <div class="text-muted">{{ user.patientprofile.weight|default:"Not set" }}</div>
-                    </div>
-                </div>
-                <hr>
-                <div class="row g-3">
-                    <div class="col-sm-6">
-                        <div class="fw-semibold">Primary Doctor</div>
-                        <div class="text-muted">{{ user.patientprofile.primary_care_physician|default:"Not set" }}</div>
-                    </div>
-                    <div class="col-sm-6">
-                        <div class="fw-semibold">Doctor's Contact</div>
-                        <div class="text-muted">{{ user.patientprofile.physician_contact|default:"Not set" }}</div>
+                    <div>
+                        <div class="data-label">Contact Number</div>
+                        <div class="data-value">{{ user.patientprofile.contact_number|default:"Not set" }}</div>
                     </div>
                 </div>
             </div>
-            <div class="profile-section-card">
-                <h5 class="card-title text-primary mb-3"><i class="bi bi-journal-medical me-2"></i>Medical History</h5>
-                <div class="row g-3">
-                    <div class="col-sm-6">
-                        <div class="fw-semibold">Chronic Conditions</div>
-                        <div class="text-muted">{{ user.patientprofile.chronic_conditions|default:"None listed." }}</div>
+
+            <div class="glass-card p-8">
+                <div class="flex items-center gap-3 mb-6 border-b border-gray-700/50 pb-4">
+                    <div class="w-10 h-10 rounded-lg bg-green-500/20 flex items-center justify-center text-green-400">
+                        <i class="fas fa-heartbeat"></i>
                     </div>
-                    <div class="col-sm-6">
-                        <div class="fw-semibold">Allergies</div>
-                        <div class="text-muted">{{ user.patientprofile.allergies|default:"None listed." }}</div>
+                    <h3 class="text-xl font-bold text-white">Medical Vitals</h3>
+                </div>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
+                    <div class="bg-black/20 p-4 rounded-xl border border-white/5">
+                        <div class="data-label">Blood Group</div>
+                        <div class="text-2xl font-bold text-white mt-1">{{ user.patientprofile.blood_group|default:"-" }}</div>
                     </div>
-                    <div class="col-12">
-                        <div class="fw-semibold">Past Surgeries / Major Illnesses</div>
-                        <div class="text-muted">{{ user.patientprofile.past_surgeries|default:"None listed." }}</div>
+                    <div class="bg-black/20 p-4 rounded-xl border border-white/5">
+                        <div class="data-label">Height (cm)</div>
+                        <div class="text-2xl font-bold text-white mt-1">{{ user.patientprofile.height|default:"-" }}</div>
                     </div>
-                    <div class="col-12">
-                        <div class="fw-semibold">Current Medications</div>
-                        <div class="text-muted">{{ user.patientprofile.current_medications|default:"None listed." }}</div>
+                    <div class="bg-black/20 p-4 rounded-xl border border-white/5">
+                        <div class="data-label">Weight (kg)</div>
+                        <div class="text-2xl font-bold text-white mt-1">{{ user.patientprofile.weight|default:"-" }}</div>
                     </div>
-                    <div class="col-12">
-                        <div class="fw-semibold">Family Medical History</div>
-                        <div class="text-muted">{{ user.patientprofile.family_medical_history|default:"None listed." }}</div>
+                </div>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div>
+                        <div class="data-label">Primary Doctor</div>
+                        <div class="data-value">{{ user.patientprofile.primary_care_physician|default:"Not set" }}</div>
                     </div>
-                    <div class="col-12">
-                        <div class="fw-semibold">Immunization History</div>
-                        <div class="text-muted">{{ user.patientprofile.immunization_history|default:"None listed." }}</div>
-                    </div>
-                    <div class="col-12">
-                        <div class="fw-semibold">Past Major Illnesses</div>
-                        <div class="text-muted">{{ user.patientprofile.past_major_illnesses|default:"None listed." }}</div>
+                    <div>
+                        <div class="data-label">Doctor's Contact</div>
+                        <div class="data-value">{{ user.patientprofile.physician_contact|default:"Not set" }}</div>
                     </div>
                 </div>
             </div>
-            <div class="profile-section-card">
-                <h5 class="card-title text-primary mb-3"><i class="bi bi-bicycle me-2"></i>Lifestyle</h5>
-                <div class="row g-3">
-                    <div class="col-sm-6">
-                        <div class="fw-semibold">Smoking Status</div>
-                        <div class="text-muted">{{ user.patientprofile.smoking_status|default:"Not set" }}</div>
+
+            <div class="glass-card p-8">
+                <div class="flex items-center gap-3 mb-6 border-b border-gray-700/50 pb-4">
+                    <div class="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center text-purple-400">
+                        <i class="fas fa-notes-medical"></i>
                     </div>
-                    <div class="col-sm-6">
-                        <div class="fw-semibold">Alcohol Consumption</div>
-                        <div class="text-muted">{{ user.patientprofile.alcohol_consumption|default:"Not set" }}</div>
+                    <h3 class="text-xl font-bold text-white">Medical History</h3>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <div class="data-label">Chronic Conditions</div>
+                        <div class="data-value text-gray-300">{{ user.patientprofile.chronic_conditions|default:"None listed." }}</div>
                     </div>
-                    <div class="col-12">
-                        <div class="fw-semibold">Dietary Notes</div>
-                        <div class="text-muted">{{ user.patientprofile.dietary_notes|default:"None listed." }}</div>
+                    <div>
+                        <div class="data-label">Allergies</div>
+                        <div class="data-value text-gray-300">{{ user.patientprofile.allergies|default:"None listed." }}</div>
+                    </div>
+                    <div class="md:col-span-2">
+                        <div class="data-label">Current Medications</div>
+                        <div class="data-value text-gray-300">{{ user.patientprofile.current_medications|default:"None listed." }}</div>
+                    </div>
+                    <div class="md:col-span-2">
+                        <div class="data-label">Past Surgeries</div>
+                        <div class="data-value text-gray-300">{{ user.patientprofile.past_surgeries|default:"None listed." }}</div>
+                    </div>
+                    <div class="md:col-span-2">
+                        <div class="data-label">Family Medical History</div>
+                        <div class="data-value text-gray-300">{{ user.patientprofile.family_medical_history|default:"None listed." }}</div>
                     </div>
                 </div>
             </div>
-            <div class="profile-section-card">
-                <h5 class="card-title text-danger mb-3"><i class="bi bi-telephone-fill me-2"></i>Emergency Contact</h5>
-                <div class="row g-3">
-                    <div class="col-sm-6">
-                        <div class="fw-semibold">Contact Name</div>
-                        <div class="text-muted">{{ user.patientprofile.emergency_contact_name|default:"Not set" }}</div>
+
+            <div class="glass-card p-8 border-l-4 border-red-500">
+                <div class="flex items-center gap-3 mb-6 border-b border-gray-700/50 pb-4">
+                    <div class="w-10 h-10 rounded-lg bg-red-500/20 flex items-center justify-center text-red-400">
+                        <i class="fas fa-phone-alt"></i>
                     </div>
-                    <div class="col-sm-6">
-                        <div class="fw-semibold">Contact Phone</div>
-                        <div class="text-muted">{{ user.patientprofile.emergency_contact_phone|default:"Not set" }}</div>
+                    <h3 class="text-xl font-bold text-white">Emergency Contact</h3>
+                </div>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div>
+                        <div class="data-label">Contact Name</div>
+                        <div class="data-value">{{ user.patientprofile.emergency_contact_name|default:"Not set" }}</div>
+                    </div>
+                    <div>
+                        <div class="data-label">Contact Phone</div>
+                        <div class="data-value">{{ user.patientprofile.emergency_contact_phone|default:"Not set" }}</div>
                     </div>
                 </div>
             </div>
+            
         </div>
     </div>
 </div>
 
-
-<div class="modal fade" id="editProfileModal" tabindex="-1">
-    <div class="modal-dialog modal-lg modal-dialog-scrollable">
-        <div class="modal-content">
-            <div class="modal-header"><h5 class="modal-title">Edit Your Profile</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close modal" title="Close"></button></div>
-            <div class="modal-body">
-                <form method="post" enctype="multipart/form-data">
-                    {% csrf_token %}
-                    <h6 class="text-primary">Personal Details</h6>
+<!-- Edit Profile Modal -->
+<div id="edit-modal" class="modal-overlay">
+    <div class="modal-content relative">
+        <button onclick="document.getElementById('edit-modal').classList.remove('active')" class="absolute top-6 right-6 text-gray-400 hover:text-white transition">
+            <i class="fas fa-times text-xl"></i>
+        </button>
+        
+        <h3 class="text-2xl font-bold text-white mb-6">Edit Profile</h3>
+        
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <div class="mb-8">
+                <h4 class="text-lg font-semibold text-primary border-b border-gray-700 pb-2 mb-4">Personal Information</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-4">
                     {{ user_form.as_p }}
-                    <hr class="my-4">
-                    <h6 class="text-primary">Medical Details</h6>
-                    {{ profile_form.as_p }}
-                    <div class="d-grid mt-4">
-                        <button type="submit" class="btn btn-primary">Save Changes</button>
-                    </div>
-                </form>
+                </div>
             </div>
-        </div>
+            
+            <div class="mb-8">
+                <h4 class="text-lg font-semibold text-primary border-b border-gray-700 pb-2 mb-4">Medical Details</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-4">
+                    {{ profile_form.as_p }}
+                </div>
+            </div>
+            
+            <div class="flex justify-end gap-4 pt-4 border-t border-gray-700 mt-6">
+                <button type="button" onclick="document.getElementById('edit-modal').classList.remove('active')" class="px-6 py-2.5 rounded-lg bg-surface text-white border border-gray-600 hover:bg-gray-800 transition">Cancel</button>
+                <button type="submit" class="px-8 py-2.5 rounded-lg bg-primary hover:bg-indigo-600 text-white transition shadow-lg shadow-indigo-500/20 font-medium">Save Changes</button>
+            </div>
+        </form>
     </div>
 </div>
 
-<div class="offcanvas offcanvas-end" tabindex="-1" id="tutorialOffcanvas">
-    <div class="offcanvas-header">
-        <h5 class="offcanvas-title"><i class="bi bi-info-circle-fill me-2"></i>Dashboard Tutorial</h5>
-    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close offcanvas" title="Close"></button>
-    </div>
-    <div class="offcanvas-body">
-        <h6>Welcome to Your Dashboard!</h6>
-        <p>This is your central hub for managing your health information.</p><hr>
-        <p><strong>1. Edit Your Profile:</strong> Click the "Edit Profile" button to update your personal and medical details. Don't forget to upload a profile picture!</p>
-        <p><strong>2. Download a PDF:</strong> Need a copy? The "Download PDF" button creates a professional summary.</p>
-        <p><strong>3. Profile Completeness:</strong> The meter shows how complete your profile is. Aim for 100%!</p>
-        <p><strong>4. Use the Navbar:</strong> All tools are just a click away in the navigation bar.</p>
-    </div>
-</div>
+<script>
+    // Close modal on background click
+    document.addEventListener('click', (e) => {
+        if (e.target.classList.contains('modal-overlay')) {
+            e.target.classList.remove('active');
+        }
+    });
+</script>
 {% endblock %}

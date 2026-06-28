@@ -1,0 +1,79 @@
+{% extends 'base_admin_dashboard.html' %}
+
+{% block title %}System Settings | Admin Panel{% endblock %}
+
+{% block content %}
+<div class="mb-8 flex items-center justify-between">
+    <div>
+        <h1 class="text-3xl font-bold text-white flex items-center gap-3">
+            <i class="fas fa-cog text-slate-400"></i> System Settings
+        </h1>
+        <p class="text-slate-400 mt-2">Global platform configurations and API integrations.</p>
+    </div>
+    <button class="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/80 transition shadow-lg shadow-primary/20 font-medium">
+        Save Changes
+    </button>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <div class="glass-panel p-8 rounded-2xl border border-slate-700/50">
+        <h3 class="text-xl font-bold text-white mb-6 border-b border-slate-700 pb-4">General Configuration</h3>
+        
+        <div class="space-y-6">
+            <div>
+                <label class="block text-sm font-medium text-slate-300 mb-2">Platform Name</label>
+                <input type="text" value="Docipher" class="w-full px-4 py-2 bg-darkbg border border-slate-600 rounded-lg text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary">
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-slate-300 mb-2">Support Email</label>
+                <input type="email" value="support@docipher.com" class="w-full px-4 py-2 bg-darkbg border border-slate-600 rounded-lg text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary">
+            </div>
+            
+            <div class="flex items-center justify-between pt-4 border-t border-slate-700">
+                <div>
+                    <h4 class="text-white font-medium">Maintenance Mode</h4>
+                    <p class="text-sm text-slate-500">Temporarily disable user logins.</p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" value="" class="sr-only peer">
+                  <div class="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <div class="glass-panel p-8 rounded-2xl border border-slate-700/50">
+        <h3 class="text-xl font-bold text-white mb-6 border-b border-slate-700 pb-4 flex items-center justify-between">
+            API Integrations
+            <span class="text-xs bg-emerald-500/20 text-emerald-400 px-2 py-1 rounded">All Systems Operational</span>
+        </h3>
+        
+        <div class="space-y-6">
+            <div>
+                <label class="block text-sm font-medium text-slate-300 mb-2 flex items-center justify-between">
+                    <span>Google Gemini API Key</span>
+                    <i class="fas fa-check-circle text-emerald-500"></i>
+                </label>
+                <input type="password" value="************************" class="w-full px-4 py-2 bg-darkbg border border-slate-600 rounded-lg text-slate-500 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary" disabled>
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-slate-300 mb-2 flex items-center justify-between">
+                    <span>Stripe Secret Key (Payments)</span>
+                    <i class="fas fa-exclamation-triangle text-yellow-500" title="Not configured"></i>
+                </label>
+                <input type="text" placeholder="sk_test_..." class="w-full px-4 py-2 bg-darkbg border border-slate-600 rounded-lg text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary">
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-slate-300 mb-2 flex items-center justify-between">
+                    <span>SMTP Host (Email Services)</span>
+                    <i class="fas fa-check-circle text-emerald-500"></i>
+                </label>
+                <input type="text" value="smtp.sendgrid.net" class="w-full px-4 py-2 bg-darkbg border border-slate-600 rounded-lg text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary">
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

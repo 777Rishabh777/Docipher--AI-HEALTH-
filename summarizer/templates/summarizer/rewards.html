@@ -1,0 +1,217 @@
+{% extends 'base_dashboard.html' %}
+{% load static %}
+
+{% block title %}Rewards | Docipher{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto py-8">
+    
+    <div class="glass-card p-8 text-center bg-gradient-to-br from-indigo-500 to-purple-600 text-white dark:from-slate-800 dark:to-slate-900 mb-8 border-0 shadow-2xl relative overflow-hidden">
+        <!-- Confetti effect base -->
+        <div class="absolute inset-0 opacity-20" style="background-image: radial-gradient(circle, white 2px, transparent 2px); background-size: 30px 30px;"></div>
+        
+        <h1 class="text-3xl font-bold mb-2 relative z-10">Health Rewards <i class="fas fa-trophy text-yellow-300"></i></h1>
+        <p class="text-indigo-100 relative z-10 mb-8">Earn points every time you confirm taking your medicine!</p>
+        
+        <div class="flex flex-col md:flex-row items-center justify-center gap-12 relative z-10">
+            
+            <div class="flex flex-col items-center">
+                <div class="w-32 h-32 rounded-full border-4 border-white/30 flex flex-col items-center justify-center bg-white/10 backdrop-blur-md shadow-lg mb-3">
+                    <span class="text-5xl font-black text-white">{{ profile.level }}</span>
+                </div>
+                <span class="font-bold uppercase tracking-wider text-indigo-100">Current Level</span>
+            </div>
+            
+            <div class="flex-1 w-full max-w-md">
+                <div class="flex justify-between mb-2 font-bold">
+                    <span>{{ profile.points }} XP</span>
+                    <span class="text-indigo-200">Next Level: {% widthratio profile.level 1 50 %} XP</span>
+                </div>
+                <div class="w-full bg-black/20 rounded-full h-4 overflow-hidden backdrop-blur-sm border border-white/10 p-0.5">
+                    <div class="bg-gradient-to-r from-yellow-300 to-yellow-500 h-full rounded-full transition-all duration-1000 ease-out shadow-[0_0_10px_rgba(253,224,71,0.5)]" style="width: {{ progress }}%"></div>
+                </div>
+                <p class="text-sm mt-3 text-indigo-200">Take your medicine on time to level up!</p>
+            </div>
+            
+        </div>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="glass-card p-6 dark:bg-slate-800">
+            <h3 class="font-bold text-lg mb-4 dark:text-white flex items-center gap-2"><i class="fas fa-medal text-primary"></i> Badges Earned</h3>
+            <div class="grid grid-cols-3 gap-4 text-center">
+                <div class="p-3 bg-slate-50 dark:bg-slate-700 rounded-lg">
+                    <i class="fas fa-star text-3xl text-yellow-400 mb-2 drop-shadow-md"></i>
+                    <p class="text-xs font-bold text-slate-600 dark:text-slate-300">Starter</p>
+                </div>
+                {% if profile.level >= 2 %}
+                <div class="p-3 bg-slate-50 dark:bg-slate-700 rounded-lg">
+                    <i class="fas fa-fire text-3xl text-orange-500 mb-2 drop-shadow-md"></i>
+                    <p class="text-xs font-bold text-slate-600 dark:text-slate-300">On Fire</p>
+                </div>
+                {% else %}
+                <div class="p-3 bg-slate-50 dark:bg-slate-800 rounded-lg opacity-40 grayscale">
+                    <i class="fas fa-lock text-3xl text-slate-400 mb-2"></i>
+                    <p class="text-xs font-bold text-slate-500">Lvl 2</p>
+                </div>
+                {% endif %}
+                
+                {% if profile.level >= 5 %}
+                <div class="p-3 bg-slate-50 dark:bg-slate-700 rounded-lg">
+                    <i class="fas fa-gem text-3xl text-blue-500 mb-2 drop-shadow-md"></i>
+                    <p class="text-xs font-bold text-slate-600 dark:text-slate-300">Diamond</p>
+                </div>
+                {% else %}
+                <div class="p-3 bg-slate-50 dark:bg-slate-800 rounded-lg opacity-40 grayscale">
+                    <i class="fas fa-lock text-3xl text-slate-400 mb-2"></i>
+                    <p class="text-xs font-bold text-slate-500">Lvl 5</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="glass-card p-6 dark:bg-slate-800 flex flex-col justify-center items-center text-center">
+            <i class="fas fa-gamepad text-5xl text-primary mb-4 opacity-80"></i>
+            <h3 class="font-bold text-lg mb-2 dark:text-white">Mini-Games</h3>
+            {% if profile.level >= 1 %}
+                <div class="grid grid-cols-2 gap-4 w-full mt-2">
+                    <a href="{% url 'game_match' %}" class="flex flex-col items-center justify-center p-4 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl text-white shadow-lg hover:shadow-indigo-500/50 transition transform hover:-translate-y-1">
+                        <i class="fas fa-heartbeat text-3xl mb-2"></i>
+                        <span class="font-bold text-sm">Medical Match</span>
+                    </a>
+                    <button onclick="openTriviaGame()" class="flex flex-col items-center justify-center p-4 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-2xl text-white shadow-lg hover:shadow-emerald-500/50 transition transform hover:-translate-y-1">
+                        <i class="fas fa-question-circle text-3xl mb-2"></i>
+                        <span class="font-bold text-sm">Health Trivia</span>
+                    </button>
+                </div>
+            {% else %}
+                <p class="text-sm text-slate-500 dark:text-slate-400 mb-4">Reach Level 2 to unlock health mini-games.</p>
+                <div class="px-6 py-2 bg-slate-200 dark:bg-slate-700 text-slate-400 rounded-full font-bold cursor-not-allowed"><i class="fas fa-lock mr-2"></i> Locked</div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Trivia Game Modal -->
+<div id="triviaModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-800 rounded-3xl w-full max-w-lg overflow-hidden shadow-2xl relative transform transition-all scale-95 opacity-0" id="triviaModalContent">
+        <button onclick="closeTriviaGame()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:hover:text-white">
+            <i class="fas fa-times text-xl"></i>
+        </button>
+        
+        <div class="p-8">
+            <div class="text-center mb-6" id="triviaStartScreen">
+                <i class="fas fa-brain text-5xl text-emerald-500 mb-4"></i>
+                <h2 class="text-2xl font-bold dark:text-white mb-2">Health Trivia</h2>
+                <p class="text-slate-500 dark:text-slate-400 mb-6">Answer 3 questions correctly to earn +15 XP!</p>
+                <button onclick="startTrivia()" class="px-8 py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-full transition shadow-lg w-full">Start Quiz</button>
+            </div>
+            
+            <div id="triviaQuestionScreen" class="hidden">
+                <div class="flex justify-between items-center mb-4 text-sm font-bold text-slate-400">
+                    <span id="questionCount">Question 1/3</span>
+                    <span class="text-emerald-500"><i class="fas fa-coins"></i> +15 XP</span>
+                </div>
+                <h3 class="text-xl font-bold dark:text-white mb-6 leading-relaxed" id="triviaQuestion">Loading question...</h3>
+                <div class="space-y-3" id="triviaOptions">
+                    <!-- Options injected here -->
+                </div>
+            </div>
+            
+            <div id="triviaEndScreen" class="hidden text-center py-6">
+                <div class="text-6xl mb-4">🎉</div>
+                <h2 class="text-2xl font-bold dark:text-white mb-2" id="triviaResultTitle">Great Job!</h2>
+                <p class="text-slate-500 dark:text-slate-400 mb-6" id="triviaResultText">You earned points!</p>
+                <button onclick="closeTriviaGame()" class="px-8 py-3 bg-primary text-white font-bold rounded-full hover:shadow-lg transition w-full">Continue</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Include external trivia questions generated by AI -->
+<script src="{% static 'js/trivia_questions.js' %}"></script>
+<script>
+    let currentQuestions = [];
+    let currentQIndex = 0;
+    let score = 0;
+    
+    function openTriviaGame() {
+        document.getElementById('triviaModal').classList.remove('hidden');
+        setTimeout(() => {
+            document.getElementById('triviaModalContent').classList.remove('scale-95', 'opacity-0');
+            document.getElementById('triviaModalContent').classList.add('scale-100', 'opacity-100');
+        }, 10);
+        
+        document.getElementById('triviaStartScreen').classList.remove('hidden');
+        document.getElementById('triviaQuestionScreen').classList.add('hidden');
+        document.getElementById('triviaEndScreen').classList.add('hidden');
+    }
+    
+    function closeTriviaGame() {
+        document.getElementById('triviaModalContent').classList.remove('scale-100', 'opacity-100');
+        document.getElementById('triviaModalContent').classList.add('scale-95', 'opacity-0');
+        setTimeout(() => {
+            document.getElementById('triviaModal').classList.add('hidden');
+            if (score === 3) window.location.reload();
+        }, 200);
+    }
+    
+    function startTrivia() {
+        // Shuffle and pick 3
+        currentQuestions = [...triviaQuestions].sort(() => 0.5 - Math.random()).slice(0, 3);
+        currentQIndex = 0;
+        score = 0;
+        
+        document.getElementById('triviaStartScreen').classList.add('hidden');
+        document.getElementById('triviaQuestionScreen').classList.remove('hidden');
+        showQuestion();
+    }
+    
+    function showQuestion() {
+        let qData = currentQuestions[currentQIndex];
+        document.getElementById('questionCount').textContent = `Question ${currentQIndex + 1}/3`;
+        document.getElementById('triviaQuestion').textContent = qData.q;
+        
+        let optionsHtml = '';
+        qData.options.forEach((opt, idx) => {
+            optionsHtml += `<button onclick="checkAnswer(${idx})" class="w-full text-left p-4 rounded-xl border-2 border-slate-100 dark:border-slate-700 hover:border-emerald-500 dark:hover:border-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 font-medium dark:text-white transition group relative overflow-hidden">
+                <span class="relative z-10">${opt}</span>
+            </button>`;
+        });
+        document.getElementById('triviaOptions').innerHTML = optionsHtml;
+    }
+    
+    function checkAnswer(selectedIdx) {
+        let qData = currentQuestions[currentQIndex];
+        if (selectedIdx === qData.answer) {
+            score++;
+        }
+        
+        currentQIndex++;
+        if (currentQIndex < 3) {
+            showQuestion();
+        } else {
+            endTrivia();
+        }
+    }
+    
+    function endTrivia() {
+        document.getElementById('triviaQuestionScreen').classList.add('hidden');
+        document.getElementById('triviaEndScreen').classList.remove('hidden');
+        
+        if (score === 3) {
+            document.getElementById('triviaResultTitle').textContent = "Perfect Score!";
+            document.getElementById('triviaResultText').textContent = "You earned +15 XP!";
+            // Award points via AJAX
+            fetch('{% url "add_game_points" %}', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
+                body: JSON.stringify({ points: 15 })
+            });
+        } else {
+            document.getElementById('triviaResultTitle').textContent = "Nice Try!";
+            document.getElementById('triviaResultText').textContent = `You got ${score}/3 correct. Try again for a perfect score to earn points!`;
+        }
+    }
+</script>
+{% endblock %}

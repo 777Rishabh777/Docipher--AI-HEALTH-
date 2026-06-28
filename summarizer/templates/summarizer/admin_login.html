@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login | Docipher</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: { primary: '#0ea5e9', secondary: '#10b981', accent: '#3b82f6', darkbg: '#0f172a', cardbg: '#1e293b' }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-darkbg text-slate-100 min-h-screen flex items-center justify-center relative overflow-hidden">
+    <!-- Decorative background -->
+    <div class="absolute top-[-20%] left-[-10%] w-[500px] h-[500px] rounded-full bg-primary/10 blur-[120px] pointer-events-none"></div>
+    <div class="absolute bottom-[-20%] right-[-10%] w-[400px] h-[400px] rounded-full bg-accent/10 blur-[120px] pointer-events-none"></div>
+    
+    <div class="w-full max-w-md relative z-10 px-6">
+        <div class="text-center mb-10">
+            <div class="w-20 h-20 mx-auto rounded-2xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg shadow-primary/30 mb-6">
+                <i class="fas fa-user-shield text-white text-4xl"></i>
+            </div>
+            <h1 class="text-3xl font-extrabold text-white tracking-tight">System Access</h1>
+            <p class="text-slate-400 mt-2">Docipher Medical Administrator Portal</p>
+        </div>
+
+        <div class="bg-cardbg/80 backdrop-blur-xl border border-slate-700/50 p-8 rounded-3xl shadow-2xl">
+            {% if messages %}
+            <div class="mb-6 space-y-3">
+                {% for message in messages %}
+                <div class="p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-sm flex items-start gap-3">
+                    <i class="fas fa-exclamation-circle mt-0.5"></i>
+                    <p>{{ message }}</p>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <form method="post" action="{% url 'admin_login' %}" class="space-y-6">
+                {% csrf_token %}
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-2">Admin Username</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-500">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <input type="text" name="username" required class="w-full pl-11 pr-4 py-3 bg-darkbg border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-2">Secure Password</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-500">
+                            <i class="fas fa-lock"></i>
+                        </div>
+                        <input type="password" name="password" required class="w-full pl-11 pr-4 py-3 bg-darkbg border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition">
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full py-4 rounded-xl bg-gradient-to-r from-primary to-accent text-white font-bold text-lg hover:shadow-[0_0_20px_rgba(14,165,233,0.4)] transition-all uppercase tracking-wide">
+                    Authenticate
+                </button>
+            </form>
+        </div>
+        
+        <div class="text-center mt-8">
+            <a href="{% url 'home' %}" class="text-sm text-slate-500 hover:text-primary transition flex items-center justify-center gap-2">
+                <i class="fas fa-arrow-left"></i> Return to main site
+            </a>
+        </div>
+    </div>
+</body>
+</html>
