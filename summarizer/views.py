@@ -115,10 +115,25 @@ def summarizer_view(request):
         
         # Upload Logic
         if uploaded_image:
-            fs = FileSystemStorage()
-            filename = fs.save(uploaded_image.name, uploaded_image)
-            uploaded_image_url = fs.url(filename)
-            file_path = fs.path(filename)
+            import tempfile
+            
+            # Save to temporary directory for AI engine
+            temp_dir = tempfile.gettempdir()
+            file_path = os.path.join(temp_dir, f"docipher_{uploaded_image.name}")
+            
+            with open(file_path, 'wb+') as destination:
+                for chunk in uploaded_image.chunks():
+                    destination.write(chunk)
+            
+            # Save to default storage (Cloudinary) for UI display
+            try:
+                uploaded_image.seek(0)
+                from django.core.files.storage import default_storage
+                saved_name = default_storage.save(uploaded_image.name, uploaded_image)
+                uploaded_image_url = default_storage.url(saved_name)
+            except Exception:
+                uploaded_image_url = ""
+                
             uploaded_file_name = uploaded_image.name
             request.session['last_uploaded_path'] = file_path
             request.session['last_uploaded_url'] = uploaded_image_url
