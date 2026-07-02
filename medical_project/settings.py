@@ -19,6 +19,12 @@ ALLOWED_HOSTS = [
     # Add your custom domain here if you have one
 ]
 
+CSRF_TRUSTED_ORIGINS = [
+    'https://*.vercel.app',
+    'http://127.0.0.1',
+    'http://localhost',
+]
+
 INSTALLED_APPS = [
     'jazzmin',
     'anymail',
