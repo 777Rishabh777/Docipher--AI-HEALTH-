@@ -102,7 +102,9 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 if not DEBUG:
-    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+    # Use standard static files storage to prevent manifest errors without a build step
+    # STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+    pass
 
 # ─── Media Files (Cloudinary — free 25GB tier) ────────────────────────────────
 CLOUDINARY_STORAGE = {
@@ -139,6 +141,7 @@ GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY', '')
 # ─── Security (auto-enabled in production) ───────────────────────────────────
 if not DEBUG:
     SECURE_SSL_REDIRECT = True
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
     SECURE_HSTS_SECONDS = 31536000
