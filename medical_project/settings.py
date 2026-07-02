@@ -109,8 +109,7 @@ STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 if not DEBUG:
     # Use standard static files storage to prevent manifest errors without a build step
-    # STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-    pass
+    STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 
 # ─── Media Files (Cloudinary — free 25GB tier) ────────────────────────────────
 CLOUDINARY_STORAGE = {
