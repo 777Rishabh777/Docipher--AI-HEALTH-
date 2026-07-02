@@ -392,7 +392,36 @@ def delete_summary_view(request, id):
 
 @login_required
 def download_profile_pdf(request): return HttpResponse("PDF Logic")
-def register(request): return render(request, 'registration/register.html', {})
+def register(request):
+    if request.method == 'POST':
+        from django.contrib.auth.models import User
+        
+        first_name = request.POST.get('first_name', '')
+        last_name = request.POST.get('last_name', '')
+        username = request.POST.get('username', '')
+        email = request.POST.get('email', '')
+        p1 = request.POST.get('password1', '')
+        p2 = request.POST.get('password2', '')
+        
+        if p1 != p2:
+            messages.error(request, "Passwords do not match.")
+            return render(request, 'registration/register.html')
+            
+        if User.objects.filter(username=username).exists():
+            messages.error(request, "Username already exists.")
+            return render(request, 'registration/register.html')
+            
+        user = User.objects.create_user(username=username, email=email, password=p1)
+        user.first_name = first_name
+        user.last_name = last_name
+        user.save()
+        
+        # Log them in automatically after registration
+        auth_login(request, user)
+        messages.success(request, "Account created successfully!")
+        return redirect('dashboard')
+        
+    return render(request, 'registration/register.html')
 
 def admin_login_view(request):
     if request.user.is_authenticated and request.user.is_staff:
